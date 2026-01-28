@@ -1,0 +1,76 @@
+/* Full-screen background */
+body, html {
+    height: 100%;
+    margin: 0;
+    background: url('/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Center login box */
+.login-box {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* Google button styling */
+.google-btn {
+    width: 100%;
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+}
+
+/* Divider with 'or' */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+    margin-right: 0.5em;
+}
+
+.divider:not(:empty)::after {
+    margin-left: 0.5em;
+}
+
+.divider span {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* Guest link styling */
+.guest-link {
+    display: block;
+    font-size: 0.9rem;
+    color: #555;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.guest-link:hover {
+    color: #000;
+    text-decoration: none;
+}

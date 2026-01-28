@@ -1,0 +1,157 @@
+/* =========================================================
+   PAGE LAYOUT
+========================================================= */
+.business-page {
+    position: relative;
+    max-width: 960px;
+    margin: 32px auto;
+}
+
+/* =========================================================
+   HERO IMAGE
+========================================================= */
+.business-hero {
+    width: 100%;
+    height: 280px;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 1px solid #1f2933;
+}
+
+/* =========================================================
+   BUSINESS CARD
+========================================================= */
+.business-card {
+    margin-top: -48px;
+    background-color: #0f172a;
+    border: 1px solid #1f2933;
+    border-radius: 0 0 16px 16px;
+    padding: 24px;
+    position: relative;
+}
+
+/* Title */
+.business-card h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Description */
+.business-description {
+    font-size: 0.95rem;
+    color: #9ca3af;
+    margin-bottom: 16px;
+}
+
+/* Categories */
+.business-categories {
+    margin-bottom: 12px;
+}
+
+.business-categories .badge {
+    background-color: #2563eb;
+    font-weight: 500;
+}
+
+/* Rating */
+.business-rating {
+    font-size: 0.9rem;
+    color: #e5e7eb;
+}
+
+/* =========================================================
+   FAVORITE BUTTON
+========================================================= */
+.favourite-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.favourite-btn svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #d6336c;
+    stroke-width: 2;
+    transition: transform 0.15s ease;
+}
+
+.favourite-btn:hover svg {
+    transform: scale(1.1);
+}
+
+#heart-filled {
+    display: none;
+    fill: #d6336c;
+    stroke: none;
+}
+
+.business-page {
+    max-width: 900px;
+    margin: auto;
+    padding-bottom: 60px;
+}
+
+/* HERO */
+.business-hero {
+    position: relative;
+    height: 300px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.business-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* HEADER */
+.business-header {
+    margin-top: 20px;
+}
+
+.business-header h1 {
+    font-size: 2rem;
+    margin-bottom: 6px;
+}
+
+.rating {
+    color: #facc15;
+    font-size: 0.95rem;
+}
+
+.categories .badge {
+    background: #2563eb;
+    margin-right: 6px;
+}
+
+/* SECTIONS */
+.business-section {
+    margin-top: 30px;
+}
+
+.business-section h3 {
+    margin-bottom: 10px;
+}
+
+/* REVIEWS */
+.review-box {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-box textarea {
+    resize: none;
+    height: 80px;
+    border-radius: 10px;
+    padding: 10px;
+}

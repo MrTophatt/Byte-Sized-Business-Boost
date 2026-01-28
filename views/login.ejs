@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login | Byte-Sized Business Boost</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./login.css">
+    </head>
+    <body class="p-5">
+        <script>
+            (async () => {
+                const token = localStorage.getItem("userToken");
+                if (!token) return;
+
+                const res = await fetch("/users/me", {
+                    headers: { "x-user-token": token }
+                });
+
+                if (res.ok) {
+                    window.location.href = "/";
+                }
+            })();
+        </script>
+
+
+        <div class="login-box">
+            <h2 class="mb-4">Welcome</h2>
+
+            <!-- Google Sign-In Button -->
+            <div id="g_id_onload"
+                data-client_id="<%= GOOGLE_CLIENT_ID %>"
+                data-callback="handleGoogleLogin">
+            </div>
+            <div class="g_id_signin google-btn"
+                data-theme="outline"
+                data-size="large">
+            </div>
+
+            <div class="divider my-3">
+                <span>or</span>
+            </div>
+
+            <!-- Guest Link -->
+            <span class="guest-link" id="guestBtn">Continue as Guest</span>
+        </div>
+
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script src="auth.js"></script>
+        <script>
+            // Guest login
+            document.getElementById("guestBtn").addEventListener("click", async () => {
+                const res = await fetch("/api/users/generate", { method: "POST" });
+                const user = await res.json();
+                localStorage.setItem("userToken", user.token);
+                window.location.href = "/";
+            });
+        </script>
+    </body>
+</html>

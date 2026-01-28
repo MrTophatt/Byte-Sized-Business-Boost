@@ -1,0 +1,114 @@
+/* =========================================================
+   CATEGORY ROW CONTAINER
+========================================================= */
+.category-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+/* =========================================================
+   INCLUDED BUTTON (BEAN)
+========================================================= */
+.category-btn.include {
+    flex: 1;
+    width: 100%;
+    background-color: #0f172a;
+    border: 1px solid #0f172a;
+    color: #cbd5f5;
+    font-size: 0.9rem;
+    padding: 6px 10px;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Label inside bean */
+.category-btn.include .label {
+    flex: 1;
+    text-align: left;
+}
+
+/* Hover state */
+.category-row:hover .category-btn.include {
+    background-color: #1f2933;
+}
+
+/* Active (included) state */
+.category-btn.include.active {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+/* Excluded state overrides (bean takes full width) */
+.category-row.excluded .category-btn.include {
+    width: 100%;
+    background-color: #1f0f0f;
+    border-color: #dc2626;
+    color: #fecaca;
+}
+
+/* =========================================================
+   EXCLUDE BUTTON (SEPARATE)
+========================================================= */
+.category-btn.exclude {
+    font-size: 0.9rem;
+
+    padding: 6px 10px;
+    border-radius: 10px;
+
+    background: transparent;
+    border: 1px solid #0f172a;
+    color: #94a3b8;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    opacity: 0;
+
+    transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+
+    text-align: center;
+}
+
+/* Show exclude button only on hover */
+.category-row:hover .category-btn.exclude {
+    opacity: 1;
+}
+
+/* Exclude button hover (red) */
+.category-btn.exclude:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+/* Hide exclude button entirely when row is excluded */
+.category-row.excluded .category-btn.exclude {
+    display: none;
+}
+
+/* =========================================================
+   DENY ICON (BOOTSTRAP ICON)
+========================================================= */
+
+/* Default (hidden) */
+.category-btn.include .deny-icon {
+    font-size: 0.9rem;
+    opacity: 0;
+    color: #f87171;
+}
+
+/* Always visible when excluded */
+.category-row.excluded .deny-icon {
+    opacity: 1;
+}

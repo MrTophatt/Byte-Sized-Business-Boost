@@ -1,0 +1,25 @@
+.navbar-main {
+    background-color: #0b0d10;
+    border-bottom: 1px solid #1f2933;
+    height: 64px;
+}
+
+.navbar-inner {
+    height: 100%;
+    width: 100%;
+    padding: 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-brand {
+    color: #f9fafb;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
+}
+
+.navbar-brand:hover {
+    color: #f9fafb;
+}

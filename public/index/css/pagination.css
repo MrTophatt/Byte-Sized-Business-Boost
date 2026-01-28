@@ -1,0 +1,32 @@
+.pagination-controls {
+    display: flex;
+    align-items: center;
+}
+
+.pagination-card {
+    height: 34px;
+    display: flex;
+    gap: 4px;
+    background-color: #0f172a;
+    border: 1px solid #1f2933;
+    border-radius: 8px;
+    padding: 4px 6px;
+}
+
+.pagination-card button {
+    background: transparent;
+    border: none;
+    color: #cbd5f5;
+    padding: 2px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.pagination-card button.active {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.pagination-card .ellipsis {
+    padding: 0 4px;
+}

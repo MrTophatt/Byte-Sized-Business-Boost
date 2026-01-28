@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dashboard | Byte-Sized Business Boost</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="index/css/base.css">
+        <link rel="stylesheet" href="index/css/layout.css">
+        <link rel="stylesheet" href="index/css/navbar.css">
+        <link rel="stylesheet" href="index/css/search.css">
+        <link rel="stylesheet" href="index/css/topControls.css">
+        <link rel="stylesheet" href="index/css/pagination.css">
+        <link rel="stylesheet" href="index/css/filters/filters.css">
+        <link rel="stylesheet" href="index/css/filters/categories.css">
+        <link rel="stylesheet" href="index/css/businessGrid.css">
+    </head>
+    <body>
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-main content-container">
+            <div class="navbar-inner">
+                <span class="navbar-brand">Byte-Sized Business Boost</span>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span id="roleBadge" class="badge bg-secondary">Guest</span>
+                    <img id="avatar" width="40" height="40" class="rounded-circle">
+                    <button id="logoutBtn" class="btn btn-outline-light btn-sm">
+                        End Session
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- SEARCH + SORT BAR -->
+        <div class="content-container top-controls d-flex flex-column gap-1">
+
+            <!-- Search Input -->
+            <div class="search-wrapper">
+                <i class="bi bi-search"></i>
+                <input
+                    id="searchInput"
+                    class="form-control"
+                    placeholder="Search businesses..."
+                >
+            </div>
+
+            <!-- Inline Accordion Controls -->
+            <div class="d-flex gap-2 mt-2">
+
+                <!-- Sort By -->
+                <div class="accordion top-controls-accordion" id="sortAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#sortDropdown"
+                            >
+                                <span class="label">Sort by:</span>
+                                <span id="sortButtonText" class="value">Relevance</span>
+                            </button>
+                        </h2>
+
+                        <div id="sortDropdown" class="accordion-collapse collapse floating">
+                            <div class="accordion-body">
+                                <button class="dropdown-item" data-value="Relevance">Relevance</button>
+                                <button class="dropdown-item" data-value="Rating">Rating</button>
+                                <button class="dropdown-item" data-value="Reviews">Reviews</button>
+                                <button class="dropdown-item" data-value="Recently Updated">Recently Updated</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View / Per Page -->
+                <div class="accordion top-controls-accordion" id="perPageAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#perPageDropdown"
+                            >
+                                <span class="label">View:</span>
+                                <span id="perPageButtonText" class="value">12</span>
+                            </button>
+                        </h2>
+
+                        <div id="perPageDropdown" class="accordion-collapse collapse floating">
+                            <div class="accordion-body">
+                                <button class="dropdown-item" data-value="1">1</button>
+                                <button class="dropdown-item" data-value="12">12</button>
+                                <button class="dropdown-item" data-value="24">24</button>
+                                <button class="dropdown-item" data-value="48">48</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="pagination-controls ms-auto">
+                    <div id="pagination" class="pagination-card"></div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- MAIN CONTENT -->
+        <div class="content-container main-layout">
+            <!-- FILTERS -->
+            <aside class="filters">
+                <div class="accordion" id="filterAccordion">
+
+                    <!-- Categories Filter -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="categoryHeading">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#categoryDropdown"
+                                aria-expanded="false"
+                                aria-controls="categoryDropdown"
+                            >
+                                Categories
+                            </button>
+                        </h2>
+
+                        <div
+                            id="categoryDropdown"
+                            class="accordion-collapse collapse"
+                            aria-labelledby="categoryHeading"
+                            data-bs-parent="#filterAccordion"
+                        >
+                            <div class="accordion-body">
+                                <!-- checkboxes injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </aside>
+
+            <!-- BUSINESS GRID -->
+            <section>
+                <div id="businessList" class="business-grid"></div>
+            </section>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="index/js/utils/color.js"></script>
+        <script src="index/js/data/businesses.js"></script>
+        <script src="index/js/data/categories.js"></script>
+        <script src="index/js/ui/accordion.js"></script>
+        <script src="index/js/ui/favourites.js"></script>
+        <script src="index/js/ui/pagination.js"></script>
+        <script type="module" src="index/js/app.js"></script>
+        <script src="index/js/auth.js"></script>
+    </body>
+</html>
