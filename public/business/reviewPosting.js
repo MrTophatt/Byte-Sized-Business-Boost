@@ -18,8 +18,10 @@ async function loadReviews() {
         const renderStars = (rating) => {
             let starsHTML = "";
             for (let i = 1; i <= 5; i++) {
-                if (i <= rating) {
+                if (rating >= i) {
                     starsHTML += `<i class="bi bi-star-fill text-warning"></i>`;
+                } else if (rating >= i - 0.5) {
+                    starsHTML += `<i class="bi bi-star-half text-warning"></i>`;
                 } else {
                     starsHTML += `<i class="bi bi-star text-warning"></i>`;
                 }
@@ -113,32 +115,80 @@ async function setupReviewBox(businessId, userToken) {
     const postButton = reviewBox.querySelector("button");
 
     // Add title + rating inputs if not already added
-    if (!reviewBox.querySelector(".review-title-input")) {
+    if (!reviewBox.querySelector(".star-rating")) {
         reviewBox.insertAdjacentHTML("afterbegin", `
             <input class="review-title-input"
-                   placeholder="Review title"
-                   maxlength="40">
+                placeholder="Review title"
+                maxlength="40">
 
-            <select class="review-rating-input">
-                <option value="5">★★★★★</option>
-                <option value="4">★★★★☆</option>
-                <option value="3">★★★☆☆</option>
-                <option value="2">★★☆☆☆</option>
-                <option value="1">★☆☆☆☆</option>
-            </select>
+            <div class="star-rating mb-2" data-rating="0">
+                ${[1,2,3,4,5].map(i => `
+                    <span class="star" data-value="${i}">
+                        <i class="bi bi-star text-warning"></i>
+                    </span>
+                `).join("")}
+            </div>
         `);
     }
 
+    const starContainer = reviewBox.querySelector(".star-rating");
+    let selectedRating = 0;
+
+    /* ---------- Render Stars ---------- */
+    function renderStarRating(rating) {
+        starContainer.querySelectorAll(".star").forEach(star => {
+            const value = Number(star.dataset.value);
+            const icon = star.querySelector("i");
+
+            if (rating >= value) {
+                icon.className = "bi bi-star-fill text-warning";
+            } else if (rating >= value - 0.5) {
+                icon.className = "bi bi-star-half text-warning";
+            } else {
+                icon.className = "bi bi-star text-warning";
+            }
+        });
+    }
+
+    /* ---------- Hover Preview ---------- */
+    starContainer.addEventListener("mousemove", e => {
+        const star = e.target.closest(".star");
+        if (!star) return;
+
+        const rect = star.getBoundingClientRect();
+        const isHalf = (e.clientX - rect.left) < rect.width / 2;
+        const value = Number(star.dataset.value) - (isHalf ? 0.5 : 0);
+
+        renderStarRating(value);
+    });
+
+    /* ---------- Restore on Mouse Leave ---------- */
+    starContainer.addEventListener("mouseleave", () => {
+        renderStarRating(selectedRating);
+    });
+
+    /* ---------- Click to Set ---------- */
+    starContainer.addEventListener("click", e => {
+        const star = e.target.closest(".star");
+        if (!star) return;
+
+        const rect = star.getBoundingClientRect();
+        const isHalf = (e.clientX - rect.left) < rect.width / 2;
+        selectedRating = Number(star.dataset.value) - (isHalf ? 0.5 : 0);
+
+        starContainer.dataset.rating = selectedRating;
+        renderStarRating(selectedRating);
+    });
+
     const titleInput = reviewBox.querySelector(".review-title-input");
-    const ratingInput = reviewBox.querySelector(".review-rating-input");
 
     postButton.onclick = async () => {
         const body = textarea.value.trim();
         console.log(body)
         const title = titleInput.value.trim();
-        const rating = Number(ratingInput.value);
+        const rating = Number(starContainer.dataset.rating);
 
-        if (!title || !rating) {
+        if (!title || rating <= 0) {
             alert("Title and rating are required.");
             return;
         }
@@ -161,6 +211,9 @@ async function setupReviewBox(businessId, userToken) {
         // Reset inputs
         textarea.value = "";
         titleInput.value = "";
+        selectedRating = 0;
+        starContainer.dataset.rating = 0;
+        renderStarRating(0);
 
         // Reload reviews
         if (typeof loadReviews === "function") {

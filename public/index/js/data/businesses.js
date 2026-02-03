@@ -98,7 +98,7 @@ async function loadBusinesses() {
                                 `<span class="badge bg-primary me-1">${c}</span>`
                             ).join("")}
                         </div>
-                        <small>⭐ ${business.avgRating} (${business.reviewCount}) • ❤ ${favouritesCount}</small>
+                        <small>⭐ ${business.avgRating} (${business.reviewCount}) | ❤ ${favouritesCount}</small>
                     </div>
                 </a>
             </div>
