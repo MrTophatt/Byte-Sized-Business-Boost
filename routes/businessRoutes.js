@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Business } = require("../models/Business");
 const Review = require("../models/Review");
+const User = require("../models/User");
 
 router.get("/", async (req, res) => {
     try {
@@ -15,6 +16,26 @@ router.get("/", async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: "users",
+                    let: { businessId: "$_id" },
+                    pipeline: [
+                        { 
+                            $match: { 
+                                $expr: {
+                                    $in: [
+                                        "$$businessId",
+                                        { $ifNull: ["$favourites", []] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $count: "count" }
+                    ],
+                    as: "favouriteStats"
+                }
+            },
+            {
                 $addFields: {
                     reviewCount: { $size: "$reviews" },
                     avgRating: {
@@ -23,12 +44,16 @@ router.get("/", async (req, res) => {
                             { $avg: "$reviews.rating" },
                             0
                         ]
+                    },
+                    favouritesCount: {
+                        $ifNull: [{ $arrayElemAt: ["$favouriteStats.count", 0] }, 0]
                     }
                 }
             },
             {
                 $project: {
-                    reviews: 0 // don't send review documents
+                    reviews: 0,
+                    favouriteStats: 0 // don't send review/favourite documents
                 }
             }
         ]);
@@ -42,6 +67,44 @@ router.get("/", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to fetch businesses" });
+    }
+});
+
+router.get("/:id", async (req, res) => {
+    try {
+        const business = await Business.findById(req.params.id).lean();
+        if (!business) {
+            return res.status(404).json({ error: "Business not found" });
+        }
+
+        const [stats, favouritesCount] = await Promise.all([
+            Review.aggregate([
+                { $match: { businessId: business._id } },
+                {
+                    $group: {
+                        _id: "$businessId",
+                        avgRating: { $avg: "$rating" },
+                        reviewCount: { $sum: 1 }
+                    }
+                }
+            ]),
+            User.countDocuments({ favourites: business._id })
+        ]);
+
+        business.avgRating = stats.length
+            ? Number(stats[0].avgRating.toFixed(1))
+            : 0;
+
+        business.reviewCount = stats.length
+            ? stats[0].reviewCount
+            : 0;
+
+        business.favouritesCount = favouritesCount;
+
+        res.json(business);
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ error: "Invalid business ID" });
     }
 });
 

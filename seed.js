@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Business } = require("../models/Business");
+const { Business } = require("./models/Business");
 const { connectDB } = require("./database");
 
 async function seed() {

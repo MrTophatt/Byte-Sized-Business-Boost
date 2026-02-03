@@ -1,4 +1,5 @@
 const container = document.getElementById("businessList");
+const searchInput = document.getElementById("searchInput");
 let searchTimeout = null;
 
 searchInput?.addEventListener("input", () => {
@@ -12,9 +13,15 @@ searchInput?.addEventListener("input", () => {
 
 async function loadBusinesses() {
     const res = await fetch("/api/businesses");
+    if (!res.ok) {
+        console.error("Failed to load businesses");
+        container.innerHTML = "";
+        renderPagination();
+        return;
+    }
     let businesses = await res.json();
 
-    const search = document.getElementById("searchInput").value.toLowerCase();
+    const search = searchInput?.value?.toLowerCase() ?? "";
 
     // SEARCH
     businesses = businesses.filter(business =>
@@ -28,6 +35,9 @@ async function loadBusinesses() {
     }
     if (sortBy === "Reviews") {
         businesses.sort((a, b) => b.reviewCount - a.reviewCount);
+    }
+    if (sortBy === "Favourites") {
+        businesses.sort((a, b) => b.favouritesCount - a.favouritesCount);
     }
     
     // Filter businesses
@@ -65,24 +75,21 @@ async function loadBusinesses() {
         }
     }
 
-    container.innerHTML = "";
+        container.innerHTML = "";
     businesses.forEach(business => {
         const isFavourited = favourites.includes(business._id);
+        const favouritesCount = business.favouritesCount ?? 0;
 
         const div = document.createElement("div");
         div.innerHTML = `
             <div class="card h-100 position-relative bg-dark text-light">
                 <a href="/business/${business._id}" class="text-decoration-none text-light">
                     <img src="${business.imageUrl}" class="card-img-top">
-                    ${
-                        isFavourited
-                            ?   `<div class="favourite-icon">
-                                    <svg viewBox="0 0 24 24" fill="#d6336c">
-                                        <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8 2.5 0 4 2 5 3.5C13 6 14.5 4 17 4c4.5 0 7 4.6 5 8-2.5 4.3-10 9-10 9z"/>
-                                    </svg>
-                                </div>`
-                            : ""
-                    }
+                    <div class="favourite-icon" style="display: ${isFavourited ? "block" : "none"};">
+                        <svg viewBox="0 0 24 24" fill="#d6336c">
+                            <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8 2.5 0 4 2 5 3.5C13 6 14.5 4 17 4c4.5 0 7 4.6 5 8-2.5 4.3-10 9-10 9z"/>
+                        </svg>
+                    </div>
                     <div class="card-body">
                         <h5>${business.name}</h5>
                         <p class="small">${business.description}</p>
@@ -91,7 +98,7 @@ async function loadBusinesses() {
                                 `<span class="badge bg-primary me-1">${c}</span>`
                             ).join("")}
                         </div>
-                        <small>⭐ ${business.avgRating} (${business.reviewCount})</small>
+                        <small>⭐ ${business.avgRating} (${business.reviewCount}) • ❤ ${favouritesCount}</small>
                     </div>
                 </a>
             </div>

@@ -2,6 +2,7 @@ const id = BUSINESS_ID;
 const userToken = localStorage.getItem("userToken");
 const ratingElement = document.getElementById("rating");
 const reviewCountElement = document.getElementById("review-count");
+const favouriteCountElement = document.getElementById("favourite-count");
 let reviews;
 
 async function loadReviewStatistics() {
@@ -19,15 +20,26 @@ async function loadReviewStatistics() {
     }
 }
 
+async function loadFavouriteStatistics() {
+    const businessResponse = await fetch(`/api/businesses/${BUSINESS_ID}`);
+    if (!businessResponse.ok) throw new Error("Failed to fetch business");
+
+    const business = await businessResponse.json();
+
+    if (favouriteCountElement) {
+        favouriteCountElement.textContent = `| ${business.favouritesCount} favourites`;
+    }
+}
+
 /* =========================
    LOAD BUSINESS
 ========================= */
 async function loadBusiness() {
     try {
         // Fetch the business data
-        const businessResponse = await fetch(`/api/business/${BUSINESS_ID}`);
+        const businessResponse = await fetch(`/api/businesses/${BUSINESS_ID}`);
         if (!businessResponse.ok) throw new Error("Failed to fetch business");
-
+        
         const business = await businessResponse.json();
 
         // HERO IMAGE
@@ -47,6 +59,7 @@ async function loadBusiness() {
         // Description
         document.getElementById("description").textContent = business.description;
 
+        loadFavouriteStatistics()
         loadReviewStatistics()
 
         // Load reviews list
