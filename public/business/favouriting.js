@@ -60,6 +60,7 @@ favBtn.addEventListener("click", async () => {
         const data = await res.json();
         isFavourited = data.favourited;
         updateHeart();
+        loadFavouriteStatistics()
     } catch (err) {
         console.error(err);
     }
