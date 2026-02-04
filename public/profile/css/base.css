@@ -1,0 +1,13 @@
+/* ===== THEME ===== */
+body {
+    margin: 0;
+    background-color: #0b0d10;
+    color: #e5e7eb;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Full-page background */
+.page-wrapper {
+    background-color: #0b0d10;
+    min-height: 100vh;
+}

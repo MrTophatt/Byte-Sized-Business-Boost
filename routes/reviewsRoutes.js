@@ -5,41 +5,6 @@ const mongoose = require("mongoose");
 const auth = require("../middleware/auth");
 
 /* ================================
-   GET reviews for a business
-================================ */
-router.get("/:businessId", async (req, res) => {
-    try {
-        const { businessId } = req.params;
-
-        // Fetch reviews and populate the user info
-        const reviews = await Review.find({ businessId })
-            .sort({ createdAt: -1 })
-            .populate("userId", "name avatarUrl role"); // Only get needed fields
-
-        // Transform reviews to include user info in a friendly format
-        const formattedReviews = reviews.map(r => ({
-            _id: r._id,
-            title: r.title,
-            body: r.body,
-            rating: r.rating,
-            createdAt: r.createdAt,
-            user: {
-                _id: r.userId._id,
-                name: r.userId.name,
-                avatarUrl: r.userId.avatarUrl,
-                role: r.userId.role
-            }
-        }));
-
-        res.json(formattedReviews);
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to load reviews" });
-    }
-});
-
-/* ================================
    POST a review
 ================================ */
 router.post("/:businessId", auth, async (req, res) => {
@@ -96,6 +61,69 @@ router.post("/:businessId", auth, async (req, res) => {
 
         console.error(err);
         res.status(500).json({ error: "Failed to post review" });
+    }
+});
+
+/* ================================
+   GET reviews for current user
+================================ */
+router.get("/me", auth, async (req, res) => {
+    try {
+        const reviews = await Review.find({ userId: req.user._id })
+            .sort({ createdAt: -1 })
+            .populate("businessId", "name")
+            .lean();
+
+        const formattedReviews = reviews.map(review => ({
+            _id: review._id,
+            title: review.title,
+            body: review.body,
+            rating: review.rating,
+            createdAt: review.createdAt,
+            business: review.businessId
+                ? { _id: review.businessId._id, name: review.businessId.name }
+                : null
+        }));
+
+        res.json(formattedReviews);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load user reviews" });
+    }
+});
+
+/* ================================
+   GET reviews for a business
+================================ */
+router.get("/:businessId", async (req, res) => {
+    try {
+        const { businessId } = req.params;
+
+        // Fetch reviews and populate the user info
+        const reviews = await Review.find({ businessId })
+            .sort({ createdAt: -1 })
+            .populate("userId", "name avatarUrl role"); // Only get needed fields
+
+        // Transform reviews to include user info in a friendly format
+        const formattedReviews = reviews.map(r => ({
+            _id: r._id,
+            title: r.title,
+            body: r.body,
+            rating: r.rating,
+            createdAt: r.createdAt,
+            user: {
+                _id: r.userId._id,
+                name: r.userId.name,
+                avatarUrl: r.userId.avatarUrl,
+                role: r.userId.role
+            }
+        }));
+
+        res.json(formattedReviews);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load reviews" });
     }
 });
 

@@ -33,7 +33,7 @@ async function loadUser() {
 
     if (user.role === "guest") {
         avatar.src = "/images/defaultAvatar.png";
-        avatar.style.filter = `hue-rotate(${user.avatarHue}deg) saturate(20)`;
+        avatar.style.filter = `hue-rotate(${getHueFromToken(userToken)}deg) saturate(20)`;
         badge.style.display = "inline-block";
     } else {
         avatar.src = user.avatarUrl;
@@ -42,12 +42,4 @@ async function loadUser() {
     }
 }
 
-loadUser();
-
-// Guest avatar fallback
-if (userToken) {
-    const avatar = document.getElementById("avatar");
-    const hue = getHueFromToken(userToken);
-    avatar.src = "/images/defaultAvatar.png";
-    avatar.style.filter = `hue-rotate(${hue}deg) saturate(20)`;
-}
+loadUser(); 

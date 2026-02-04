@@ -22,10 +22,27 @@
 
                 <div class="d-flex align-items-center gap-3">
                     <span id="roleBadge" class="badge bg-secondary">Guest</span>
-                    <img id="avatar" width="40" height="40" class="rounded-circle">
-                    <button id="logoutBtn" class="btn btn-outline-light btn-sm">
-                        End Session
-                    </button>
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-link p-0 border-0 dropdown-toggle"
+                            id="userMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            <img id="avatar" width="40" height="40" class="rounded-circle">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                            <li>
+                                <a id="profileLink" class="dropdown-item" href="/profile">Profile</a>
+                            </li>
+                            <li>
+                                <button id="logoutBtn" class="dropdown-item text-danger" type="button">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Sign Out
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
