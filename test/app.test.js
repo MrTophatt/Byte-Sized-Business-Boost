@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const { expect } = require("chai");
 const request = require("supertest");
 const app = require("../server"); // your Express app
-const { connectDB, disconnectDB } = require("../src/database");
+const { connectDB, disconnectDB } = require("../database");
 const User = require("../models/User");
 const { Business } = require("../models/Business");
 

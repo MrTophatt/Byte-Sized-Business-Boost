@@ -2,16 +2,20 @@
   "name": "byte-sized-business-boost",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "desktop/main.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "electron .",
+    "start:web": "node server.js",
     "seed": "node seed.js",
-    "test": "mocha --timeout 5000"
+    "test": "mocha --timeout 5000",
+    "build:win": "electron-builder --win nsis",
+    "build:dir": "electron-builder --dir"
   },
   "author": "Mohid Faisal Mushtaq",
   "license": "ISC",
   "dependencies": {
     "connect-mongo": "^6.0.0",
+    "dotenv": "^17.2.3",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
@@ -21,8 +25,51 @@
   },
   "devDependencies": {
     "chai": "^6.2.2",
-    "dotenv": "^17.2.3",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
     "mocha": "^11.7.5",
     "supertest": "^7.2.2"
+  },
+  "build": {
+    "appId": "com.bytesizedbusinessboost.desktop",
+    "productName": "Byte-Sized Business Boost",
+    "files": [
+      "assets/**/*",
+      "desktop/**/*",
+      "middleware/**/*",
+      "models/**/*",
+      "public/**/*",
+      "routes/**/*",
+      "views/**/*",
+      "env.js",
+      "database.js",
+      "server.js",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "desktop/main.js"
+    },
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icon.png",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false, 
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true
+    },
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ]
   }
 }

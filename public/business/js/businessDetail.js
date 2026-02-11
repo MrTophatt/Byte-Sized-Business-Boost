@@ -1,5 +1,4 @@
 const id = BUSINESS_ID;
-const userToken = localStorage.getItem("userToken");
 const ratingElement = document.getElementById("rating");
 const reviewCountElement = document.getElementById("review-count");
 const favouriteCountElement = document.getElementById("favourite-count");

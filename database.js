@@ -1,4 +1,5 @@
-require("dotenv").config();
+const { loadEnv } = require("./env");
+loadEnv();
 const mongoose = require("mongoose");
 
 async function connectDB() {

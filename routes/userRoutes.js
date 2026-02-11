@@ -1,5 +1,5 @@
 const express = require("express");
-const { v4: uuidv4 } = require("uuid");
+const crypto = require("crypto");
 const User = require("../models/User");
 const auth = require("../middleware/auth");
 
@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/generate", async (req, res) => {
     try {
-        const token = uuidv4();
+        const token = crypto.randomUUID();
         const user = await User.create({ token });
         res.json(user);
     } catch (err) {
@@ -45,7 +45,7 @@ router.get("/favourites", auth, async (req, res) => {
         return res.json({ favourites: [] });
     }
 
-    res.json({ favourites: user.favourites }); // array of business IDs
+    res.json({ favourites: user.favourites }); // array of business IDs␊
 });
 
 module.exports = router;
