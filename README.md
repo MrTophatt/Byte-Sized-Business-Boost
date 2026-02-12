@@ -111,7 +111,3 @@ npm test
 
 - Deal/offer scheduling and expiration
 - Business timetable to show opening and closing times
-
-## License
-
-ISC
