@@ -12,9 +12,10 @@ const categoriesRoute = require("./routes/categoriesRoutes");
 const reviewRoutes = require("./routes/reviewsRoutes");
 
 const app = express();
+const publicDir = path.join(__dirname, "public");
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(publicDir));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -27,7 +28,7 @@ app.use("/api/categories", categoriesRoute);
 app.use("/api/reviews", reviewRoutes);
 
 app.get("/", async (req, res) => {
-    res.sendFile(path.join(__dirname, "public/index/index.html"));
+    res.sendFile(path.join(publicDir, "index/index.html"));
 });
 
 app.get("/login", (req, res) => {
