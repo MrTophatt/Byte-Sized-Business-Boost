@@ -161,3 +161,82 @@
     border-radius: 10px;
     padding: 10px;
 }
+
+.info-grid {
+    display: grid;
+    gap: 8px;
+    max-width: 460px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #1f2933;
+    border-radius: 10px;
+    background-color: #0f172a;
+}
+
+.info-day {
+    font-weight: 600;
+}
+
+.info-hours.closed {
+    color: #f87171;
+}
+
+.info-hours.open {
+    color: #86efac;
+}
+
+.deals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.deal-card {
+    border: 1px solid #1f2933;
+    border-radius: 10px;
+    padding: 12px;
+    background-color: #0f172a;
+}
+
+.deal-title {
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.deal-description {
+    color: #cbd5e1;
+    margin-bottom: 4px;
+}
+
+.deal-range {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.review-breakdown {
+    max-width: 560px;
+    display: grid;
+    gap: 10px;
+}
+
+.review-breakdown-row {
+    display: grid;
+    grid-template-columns: 46px 1fr 28px;
+    gap: 10px;
+    align-items: center;
+}
+
+.review-breakdown-row .progress {
+    height: 12px;
+    background-color: #1f2937;
+}
+
+.stars-label,
+.stars-count {
+    font-size: 0.9rem;
+}

@@ -6,9 +6,7 @@ const app = require("../server"); // your Express app
 const { connectDB, disconnectDB } = require("../database");
 const User = require("../models/User");
 const { Business } = require("../models/Business");
-
-// Example data
-const testGoogleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
 
 describe("Byte-Sized Business Boost Tests", function() {
 
@@ -40,18 +38,25 @@ describe("Byte-Sized Business Boost Tests", function() {
             name: "Test Coffee Shop",
             categories: ["food", "cafe"],
             rating: 4.5,
-            deals: ["Free cookie with coffee"]
+            deals: [{
+                title: "Welcome Offer",
+                description: "Free cookie with any coffee purchase",
+                startDate: new Date("2026-01-01"),
+                endDate: new Date("2026-01-31")
+            }]
         });
 
         expect(business.name).to.equal("Test Coffee Shop");
         expect(business.categories).to.include("food");
+        expect(business.timetable).to.have.lengthOf(7);
+        expect(business.deals[0].title).to.equal("Welcome Offer");
 
         await Business.deleteOne({ _id: business._id }); // cleanup
     });
 
     it("Google Client ID should be set", function() {
-        expect(testGoogleClientId).to.be.a("string");
-        expect(testGoogleClientId.length).to.be.greaterThan(0);
+        expect(googleClientId).to.be.a("string");
+        expect(googleClientId.length).to.be.greaterThan(0);
     });
 
     it("API should generate a guest user", async function() {

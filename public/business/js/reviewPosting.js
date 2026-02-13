@@ -10,7 +10,7 @@ async function loadReviews() {
         const reviewList = document.getElementById("review-list");
 
         if (reviews.length === 0) {
-            reviewList.innerHTML = `<p class="text-muted">No reviews yet.</p>`;
+            reviewList.innerHTML = `<p class="">No reviews yet.</p>`;
             return;
         }
 
