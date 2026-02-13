@@ -1,6 +1,31 @@
-/* =========================
-   LOAD REVIEWS
-========================= */
+const STAR_OPTIONS = [1, 2, 3, 4, 5];
+const REVIEW_PREVIEW_MAX_LENGTH = 200;
+
+/**
+ * Builds a star icon row for a numeric rating value.
+ * @param {number} rating - Rating value between 0 and 5 (supports halves).
+ * @returns {string} HTML string containing Bootstrap star icons.
+ */
+function renderStars(rating) {
+    let starsHtml = "";
+
+    for (let i = 1; i <= 5; i += 1) {
+        if (rating >= i) {
+            starsHtml += '<i class="bi bi-star-fill text-warning"></i>';
+        } else if (rating >= i - 0.5) {
+            starsHtml += '<i class="bi bi-star-half text-warning"></i>';
+        } else {
+            starsHtml += '<i class="bi bi-star text-warning"></i>';
+        }
+    }
+
+    return starsHtml;
+}
+
+/**
+ * Loads reviews for the current business and renders cards into #review-list.
+ * @returns {Promise<void>}
+ */
 async function loadReviews() {
     try {
         const response = await fetch(`/api/reviews/${BUSINESS_ID}`);
@@ -10,36 +35,19 @@ async function loadReviews() {
         const reviewList = document.getElementById("review-list");
 
         if (reviews.length === 0) {
-            reviewList.innerHTML = `<p class="">No reviews yet.</p>`;
+            reviewList.innerHTML = '<p class="text-muted">No reviews yet.</p>';
             return;
         }
 
-        // Helper to generate stars
-        const renderStars = (rating) => {
-            let starsHTML = "";
-            for (let i = 1; i <= 5; i++) {
-                if (rating >= i) {
-                    starsHTML += `<i class="bi bi-star-fill text-warning"></i>`;
-                } else if (rating >= i - 0.5) {
-                    starsHTML += `<i class="bi bi-star-half text-warning"></i>`;
-                } else {
-                    starsHTML += `<i class="bi bi-star text-warning"></i>`;
-                }
-            }
-            return starsHTML;
-        };
-
-        reviewList.innerHTML = reviews.map(review => {
+        reviewList.innerHTML = reviews.map((review) => {
             const user = review.user || {};
             const avatar = user.avatarUrl || "/images/defaultAvatar.png";
             const username = user.name || "Anonymous";
 
-            // Limit the visible body to 200 characters, fade extra text
-            const maxLength = 200;
-            const shortBody = review.body.length > maxLength 
-                ? review.body.slice(0, maxLength) 
+            const shortBody = review.body.length > REVIEW_PREVIEW_MAX_LENGTH
+                ? review.body.slice(0, REVIEW_PREVIEW_MAX_LENGTH)
                 : review.body;
-            const hasMore = review.body.length > maxLength;
+            const hasMore = review.body.length > REVIEW_PREVIEW_MAX_LENGTH;
 
             return `
                 <div class="card mb-3 shadow-sm">
@@ -54,7 +62,7 @@ async function loadReviews() {
 
                         <p class="review-body mb-2">
                             ${shortBody}
-                            ${hasMore ? `<span class="fade-text">... </span><a href="#" class="see-more">See more</a>` : ""}
+                            ${hasMore ? '<span class="fade-text">... </span><a href="#" class="see-more">See more</a>' : ""}
                         </p>
 
                         <small class="text-muted">${new Date(review.createdAt).toLocaleDateString()}</small>
@@ -63,58 +71,54 @@ async function loadReviews() {
             `;
         }).join("");
 
-        // Add "See more" behavior
-        document.querySelectorAll(".see-more").forEach(link => {
-            link.addEventListener("click", (e) => {
-                e.preventDefault();
-                const p = e.target.closest(".review-body");
-                p.textContent = p.textContent.replace("... See more", ""); // Show full text
+        document.querySelectorAll(".see-more").forEach((link) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                const reviewBody = event.target.closest(".review-body");
+                reviewBody.textContent = reviewBody.textContent.replace("... See more", "");
             });
         });
-
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
     }
 }
 
-/* =========================
-   POST REVIEW
-========================= */
+/**
+ * Sets up the review composer box and posting behavior for authenticated users.
+ * @param {string} businessId - Business document id.
+ * @param {string} userToken - Session token used for API authorization.
+ * @returns {Promise<void>}
+ */
 async function setupReviewBox(businessId, userToken) {
     const reviewBox = document.getElementById("review-box");
     if (!reviewBox) return;
 
-    // No token? Hide the box completely
     if (!userToken) {
         reviewBox.style.display = "none";
         return;
     }
 
-    // Fetch the user role from your backend
-    const userRes = await fetch("/api/users/me", {
+    const userResponse = await fetch("/api/users/me", {
         headers: { "x-user-token": userToken }
     });
 
-    if (!userRes.ok) {
+    if (!userResponse.ok) {
         reviewBox.style.display = "none";
         return;
     }
 
-    const user = await userRes.json();
+    const user = await userResponse.json();
 
-    // Hide review box for guest users
     if (user.role === "guest") {
         reviewBox.style.display = "none";
         return;
     }
 
-    // Otherwise, show the box and attach post functionality
     reviewBox.style.display = "flex";
 
     const textarea = reviewBox.querySelector("textarea");
     const postButton = reviewBox.querySelector("button");
 
-    // Add title + rating inputs if not already added
     if (!reviewBox.querySelector(".star-rating")) {
         reviewBox.insertAdjacentHTML("afterbegin", `
             <input class="review-title-input"
@@ -122,8 +126,8 @@ async function setupReviewBox(businessId, userToken) {
                 maxlength="40">
 
             <div class="star-rating mb-2" data-rating="0">
-                ${[1,2,3,4,5].map(i => `
-                    <span class="star" data-value="${i}">
+                ${STAR_OPTIONS.map((value) => `
+                    <span class="star" data-value="${value}">
                         <i class="bi bi-star text-warning"></i>
                     </span>
                 `).join("")}
@@ -134,9 +138,13 @@ async function setupReviewBox(businessId, userToken) {
     const starContainer = reviewBox.querySelector(".star-rating");
     let selectedRating = 0;
 
-    /* ---------- Render Stars ---------- */
+    /**
+     * Updates the star input widget to reflect hover/selected state.
+     * @param {number} rating - Target visual rating to render.
+     * @returns {void}
+     */
     function renderStarRating(rating) {
-        starContainer.querySelectorAll(".star").forEach(star => {
+        starContainer.querySelectorAll(".star").forEach((star) => {
             const value = Number(star.dataset.value);
             const icon = star.querySelector("i");
 
@@ -150,30 +158,27 @@ async function setupReviewBox(businessId, userToken) {
         });
     }
 
-    /* ---------- Hover Preview ---------- */
-    starContainer.addEventListener("mousemove", e => {
-        const star = e.target.closest(".star");
+    starContainer.addEventListener("mousemove", (event) => {
+        const star = event.target.closest(".star");
         if (!star) return;
 
         const rect = star.getBoundingClientRect();
-        const isHalf = (e.clientX - rect.left) < rect.width / 2;
+        const isHalf = (event.clientX - rect.left) < rect.width / 2;
         const value = Number(star.dataset.value) - (isHalf ? 0.5 : 0);
 
         renderStarRating(value);
     });
 
-    /* ---------- Restore on Mouse Leave ---------- */
     starContainer.addEventListener("mouseleave", () => {
         renderStarRating(selectedRating);
     });
 
-    /* ---------- Click to Set ---------- */
-    starContainer.addEventListener("click", e => {
-        const star = e.target.closest(".star");
+    starContainer.addEventListener("click", (event) => {
+        const star = event.target.closest(".star");
         if (!star) return;
 
         const rect = star.getBoundingClientRect();
-        const isHalf = (e.clientX - rect.left) < rect.width / 2;
+        const isHalf = (event.clientX - rect.left) < rect.width / 2;
         selectedRating = Number(star.dataset.value) - (isHalf ? 0.5 : 0);
 
         starContainer.dataset.rating = selectedRating;
@@ -184,7 +189,6 @@ async function setupReviewBox(businessId, userToken) {
 
     postButton.onclick = async () => {
         const body = textarea.value.trim();
-        console.log(body)
         const title = titleInput.value.trim();
         const rating = Number(starContainer.dataset.rating);
 
@@ -193,7 +197,7 @@ async function setupReviewBox(businessId, userToken) {
             return;
         }
 
-        const res = await fetch(`/api/reviews/${businessId}`, {
+        const response = await fetch(`/api/reviews/${businessId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -202,23 +206,21 @@ async function setupReviewBox(businessId, userToken) {
             body: JSON.stringify({ title, body, rating })
         });
 
-        if (!res.ok) {
-            const data = await res.json();
+        if (!response.ok) {
+            const data = await response.json();
             alert(data.error || "Failed to post review");
             return;
         }
 
-        // Reset inputs
         textarea.value = "";
         titleInput.value = "";
         selectedRating = 0;
         starContainer.dataset.rating = 0;
         renderStarRating(0);
 
-        // Reload reviews
         if (typeof loadReviews === "function") {
             loadReviews();
-            loadReviewStatistics()
+            loadReviewStatistics();
         }
     };
 }

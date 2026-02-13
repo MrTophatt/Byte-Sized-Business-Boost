@@ -12,6 +12,11 @@ const BUSINESS_CATEGORIES = {
     fitness: "bi-activity"
 };
 
+const TIME_24H_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+/**
+ * Business week ordering used by timetable validation and defaults.
+ */
 const DAYS_OF_WEEK = [
     "monday",
     "tuesday",
@@ -68,7 +73,7 @@ const timetableDaySchema = new mongoose.Schema({
         default: null,
         validate: {
             validator(value) {
-                return value === null || /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+                return value === null || TIME_24H_PATTERN.test(value);
             },
             message: "Opening time must be in HH:mm format"
         }
@@ -78,17 +83,23 @@ const timetableDaySchema = new mongoose.Schema({
         default: null,
         validate: {
             validator(value) {
-                return value === null || /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+                return value === null || TIME_24H_PATTERN.test(value);
             },
             message: "Closing time must be in HH:mm format"
         }
     }
 }, { _id: false });
 
+/**
+ * Ensures opening time is present for non-closed days.
+ */
 timetableDaySchema.path("opensAt").validate(function(value) {
     return this.isClosed || !!value;
 }, "Opening time is required when day is open");
 
+/**
+ * Ensures closing time is present for non-closed days.
+ */
 timetableDaySchema.path("closesAt").validate(function(value) {
     return this.isClosed || !!value;
 }, "Closing time is required when day is open");
@@ -106,10 +117,21 @@ const businessSchema = new mongoose.Schema({
         required: true
     },
 
+    ownerName: {
+        type: String,
+        default: "Business owner"
+    },
+
+    contactPhone: String,
+    contactEmail: String,
+    websiteUrl: String,
+    address: String,
+
     timetable: {
         type: [timetableDaySchema],
         validate: {
             validator(days) {
+                // Require all 7 unique weekdays so rendering logic always has complete data.
                 if (!Array.isArray(days) || days.length !== DAYS_OF_WEEK.length) {
                     return false;
                 }

@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 const { Business } = require("./models/Business");
 const { connectDB } = require("./database");
 
+/**
+ * Builds a complete 7-day timetable from partial daily opening data.
+ * Days not provided are marked as closed.
+ * @param {Object<string, {opensAt: string, closesAt: string}>} hoursByDay - Day-to-hours map.
+ * @returns {Array<{day: string, isClosed: boolean, opensAt: (string|null), closesAt: (string|null)}>}
+ */
 function createTimetable(hoursByDay = {}) {
     const defaultDays = [
         "monday",
@@ -29,6 +35,10 @@ function createTimetable(hoursByDay = {}) {
     });
 }
 
+/**
+ * Seeds demo businesses using the current schema shape.
+ * @returns {Promise<void>}
+ */
 async function seed() {
     await connectDB();
 
@@ -39,6 +49,11 @@ async function seed() {
             name: "Maple Leaf Café",
             description: "A cozy local café serving coffee and pastries.",
             categories: ["food", "cafe"],
+            ownerName: "Avery Thompson",
+            contactPhone: "(416) 555-0101",
+            contactEmail: "hello@mapleleafcafe.ca",
+            websiteUrl: "https://mapleleafcafe.ca",
+            address: "120 Queen St W, Toronto, ON",
             timetable: createTimetable({
                 monday: { opensAt: "07:30", closesAt: "17:00" },
                 tuesday: { opensAt: "07:30", closesAt: "17:00" },
@@ -61,6 +76,11 @@ async function seed() {
             name: "Northside Fitness",
             description: "Community-focused gym with personal training.",
             categories: ["fitness", "health"],
+            ownerName: "Jordan Patel",
+            contactPhone: "(416) 555-0120",
+            contactEmail: "team@northsidefitness.ca",
+            websiteUrl: "https://northsidefitness.ca",
+            address: "88 Bloor St E, Toronto, ON",
             timetable: createTimetable({
                 monday: { opensAt: "05:30", closesAt: "22:00" },
                 tuesday: { opensAt: "05:30", closesAt: "22:00" },
@@ -84,6 +104,11 @@ async function seed() {
             name: "TechNest Repairs",
             description: "Phone and laptop repair services.",
             categories: ["technology", "services"],
+            ownerName: "Chris Nguyen",
+            contactPhone: "(416) 555-0145",
+            contactEmail: "support@technestrepairs.ca",
+            websiteUrl: "https://technestrepairs.ca",
+            address: "22 King St E, Toronto, ON",
             timetable: createTimetable({
                 monday: { opensAt: "09:00", closesAt: "18:00" },
                 tuesday: { opensAt: "09:00", closesAt: "18:00" },
@@ -96,6 +121,11 @@ async function seed() {
             name: "Bright Minds Tutoring",
             description: "Math, science, and coding tutoring.",
             categories: ["education", "services"],
+            ownerName: "Samantha Lee",
+            contactPhone: "(416) 555-0188",
+            contactEmail: "info@brightmindstutoring.ca",
+            websiteUrl: "https://brightmindstutoring.ca",
+            address: "350 College St, Toronto, ON",
             timetable: createTimetable({
                 monday: { opensAt: "15:00", closesAt: "20:00" },
                 tuesday: { opensAt: "15:00", closesAt: "20:00" },
@@ -108,6 +138,11 @@ async function seed() {
             name: "Downtown Boutique",
             description: "Handmade clothing and accessories.",
             categories: ["retail"],
+            ownerName: "Mila Rossi",
+            contactPhone: "(416) 555-0166",
+            contactEmail: "shop@downtownboutique.ca",
+            websiteUrl: "https://downtownboutique.ca",
+            address: "541 Dundas St W, Toronto, ON",
             timetable: createTimetable({
                 tuesday: { opensAt: "10:00", closesAt: "17:00" },
                 wednesday: { opensAt: "10:00", closesAt: "17:00" },

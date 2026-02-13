@@ -49,80 +49,84 @@
             </div>
         </nav>
 
-        <div class="business-page content-container top-controls d-flex flex-column gap-1">
-            <!-- HERO -->
-            <div class="business-hero">
-                <img id="hero-image" />
-                <div id="favourite-btn" class="favourite-btn" title="Favourite">
-                    <!-- outline -->
-                    <svg id="heart-outline" viewBox="0 0 24 24">
-                        <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8
-                                2.5 0 4 2 5 3.5
-                                C13 6 14.5 4 17 4
-                                c4.5 0 7 4.6 5 8
-                                -2.5 4.3-10 9-10 9z"/>
-                    </svg>
+        <main class="business-layout content-container top-controls">
+            <section class="business-main">
+                <header class="business-header-card">
+                    <img id="business-logo" class="business-logo" alt="Business logo">
 
-                    <!-- filled -->
-                    <svg id="heart-filled" viewBox="0 0 24 24">
-                        <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8
-                                2.5 0 4 2 5 3.5
-                                C13 6 14.5 4 17 4
-                                c4.5 0 7 4.6 5 8
-                                -2.5 4.3-10 9-10 9z"/>
-                    </svg>
+                    <div class="business-title-wrap">
+                        <h1 id="business-name"></h1>
+                        <div class="meta-row">
+                            <span class="owner">Owned by <strong id="owner-name">Business Owner</strong></span>
+                            <span class="dot">•</span>
+                            <span id="categories" class="categories"></span>
+                        </div>
+                        <div class="status-row">
+                            <strong id="open-status" class="open">Open</strong>
+                            <span id="today-hours"></span>
+                        </div>
+                        <div class="rating-row">
+                            <i class="bi bi-star-fill"></i>
+                            <span id="rating"></span>
+                            <span id="review-count"></span>
+                            <span id="favourite-count"></span>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="action-row">
+                    <button id="share-btn" class="btn btn-outline-light">
+                        <i class="bi bi-share"></i>
+                        Share
+                    </button>
+
+                    <button id="favourite-btn" class="btn btn-outline-light">
+                        <i id="favourite-icon" class="bi bi-bookmark"></i>
+                        <span id="favourite-label">Save</span>
+                    </button>
                 </div>
-            </div>
 
-            <!-- HEADER INFO -->
-            <div class="business-header">
-                <h1 id="business-name"></h1>
-                <div class="rating">
-                    <i class="bi bi-star-fill"></i> <span id="rating"></span>
-                    <span id="review-count"></span>
-                    <span id="favourite-count"></span>
+                <section class="business-section">
+                    <h3>About</h3>
+                    <p id="description"></p>
+                </section>
+
+                <section class="business-section">
+                    <h3>Opening hours</h3>
+                    <div id="timetable" class="info-grid"></div>
+                </section>
+
+                <section class="business-section">
+                    <h3>Current deals</h3>
+                    <div id="deals" class="deals-grid"></div>
+                </section>
+
+                <section class="business-section">
+                    <h3>Review breakdown</h3>
+                    <div id="review-breakdown" class="review-breakdown"></div>
+                </section>
+
+                <section class="business-section">
+                    <h3>Reviews</h3>
+                    <div id="review-list"></div>
+
+                    <div id="review-box" class="review-box">
+                        <textarea placeholder="Write a review..."></textarea>
+                        <button>Post Review</button>
+                    </div>
+                </section>
+            </section>
+
+            <aside class="business-sidebar">
+                <div class="sidebar-card">
+                    <h4>Contact info</h4>
+                    <p id="contact-phone" class="sidebar-line"></p>
+                    <p id="contact-email" class="sidebar-line"></p>
+                    <p id="contact-website" class="sidebar-line"></p>
+                    <p id="contact-address" class="sidebar-line"></p>
                 </div>
-
-                <div id="categories" class="categories"></div>
-            </div>
-
-            <!-- DESCRIPTION -->
-            <section class="business-section">
-                <h3>About</h3>
-                <p id="description"></p>
-            </section>
-
-            <!-- TIMETABLE -->
-            <section class="business-section">
-                <h3>Opening hours</h3>
-                <div id="timetable" class="info-grid"></div>
-            </section>
-
-            <!-- DEALS -->
-            <section class="business-section">
-                <h3>Current deals</h3>
-                <div id="deals" class="deals-grid"></div>
-            </section>
-
-            <!-- REVIEW STATS -->
-            <section class="business-section">
-                <h3>Review breakdown</h3>
-                <div id="review-breakdown" class="review-breakdown"></div>
-            </section>
-
-            <!-- REVIEWS -->
-            <section class="business-section">
-                <h3>Reviews</h3>
-
-                <div id="review-list"></div>
-
-                <div id="review-box" class="review-box">
-                    <textarea placeholder="Write a review..."></textarea>
-                    <button>Post Review</button>
-                </div>
-            </section>
-
-        </div>
+            </aside>
+        </main>
 
         <script>
             const BUSINESS_ID = "<%= businessId %>";

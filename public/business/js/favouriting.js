@@ -1,75 +1,88 @@
-const favBtn = document.getElementById("favourite-btn");
-const outline = document.getElementById("heart-outline");
-const filled = document.getElementById("heart-filled");
+const favouriteButton = document.getElementById("favourite-btn");
+const favouriteIcon = document.getElementById("favourite-icon");
+const favouriteLabel = document.getElementById("favourite-label");
 
 const token = localStorage.getItem("userToken");
 let isFavourited = false;
 
-// Fetch user info to check role
+/**
+ * Fetches the current signed-in user from API.
+ * @returns {Promise<Object|null>} User object or null if unavailable.
+ */
 async function getUser() {
     if (!token) return null;
 
     try {
-        const res = await fetch("/api/users/me", {
+        const response = await fetch("/api/users/me", {
             headers: { "x-user-token": token }
         });
-        if (!res.ok) return null;
-        const user = await res.json();
-        return user;
-    } catch (err) {
-        console.error(err);
+
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error(error);
         return null;
     }
 }
 
+/**
+ * Updates the save button icon/text based on favourite state.
+ * @returns {void}
+ */
+function updateFavouriteButton() {
+    favouriteIcon.className = isFavourited ? "bi bi-bookmark-fill" : "bi bi-bookmark";
+    favouriteLabel.textContent = isFavourited ? "Saved" : "Save";
+}
+
+/**
+ * Loads the current favourite state for the selected business.
+ * @returns {Promise<void>}
+ */
 async function loadFavourite() {
     const user = await getUser();
 
-    // Hide favourite button for guests or missing user
     if (!user || user.role === "guest") {
-        favBtn.style.display = "none";
+        favouriteButton.style.display = "none";
         return;
     }
 
     try {
-        const res = await fetch(`/api/favourites/${BUSINESS_ID}`, {
+        const response = await fetch(`/api/favourites/${BUSINESS_ID}`, {
             headers: { "x-user-token": token }
         });
-        if (!res.ok) throw new Error("Failed to load favourite");
 
-        const data = await res.json();
+        if (!response.ok) throw new Error("Failed to load favourite");
+
+        const data = await response.json();
         isFavourited = data.favourited;
-        updateHeart();
-    } catch (err) {
-        console.error(err);
+        updateFavouriteButton();
+    } catch (error) {
+        console.error(error);
     }
 }
 
-favBtn.addEventListener("click", async () => {
+favouriteButton.addEventListener("click", async () => {
     const user = await getUser();
-
-    if (!user || user.role === "guest") return; // Guests cannot favourite
+    if (!user || user.role === "guest") return;
 
     try {
-        const res = await fetch(`/api/favourites/${BUSINESS_ID}`, {
+        const response = await fetch(`/api/favourites/${BUSINESS_ID}`, {
             method: "POST",
             headers: { "x-user-token": token }
         });
-        if (!res.ok) return;
 
-        const data = await res.json();
+        if (!response.ok) return;
+
+        const data = await response.json();
         isFavourited = data.favourited;
-        updateHeart();
-        loadFavouriteStatistics()
-    } catch (err) {
-        console.error(err);
+        updateFavouriteButton();
+
+        if (typeof loadFavouriteStatistics === "function") {
+            loadFavouriteStatistics();
+        }
+    } catch (error) {
+        console.error(error);
     }
 });
 
-function updateHeart() {
-    outline.style.display = isFavourited ? "none" : "block";
-    filled.style.display = isFavourited ? "block" : "none";
-}
-
-// Initialize
 loadFavourite();

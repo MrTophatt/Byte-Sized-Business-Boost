@@ -1,153 +1,179 @@
-.top-actions {
+.business-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: 24px;
+    max-width: 1200px;
+    margin: 24px auto 60px;
+}
+
+.business-main {
+    min-width: 0;
+}
+
+.business-header-card,
+.business-section,
+.sidebar-card {
+    background: #0f172a;
+    border: 1px solid #1f2933;
+    border-radius: 12px;
+}
+
+.business-header-card {
     display: flex;
-    gap: 10px;
-    margin: 6px 0 14px;
+    gap: 16px;
+    padding: 18px;
 }
 
-/* =========================================================
-   PAGE LAYOUT
-========================================================= */
-.business-page {
-    position: relative;
-    max-width: 960px;
-    margin: 32px auto;
-}
-
-/* =========================================================
-   HERO IMAGE
-========================================================= */
-.business-hero {
-    width: 100%;
-    height: 280px;
-    border-radius: 14px;
+.business-logo {
+    width: 88px;
+    height: 88px;
     object-fit: cover;
+    border-radius: 12px;
     border: 1px solid #1f2933;
 }
 
-/* =========================================================
-   BUSINESS CARD
-========================================================= */
-.business-card {
-    margin-top: -48px;
-    background-color: #0f172a;
-    border: 1px solid #1f2933;
-    border-radius: 0 0 16px 16px;
-    padding: 24px;
-    position: relative;
+.business-title-wrap {
+    min-width: 0;
 }
 
-/* Title */
-.business-card h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 8px;
+.business-title-wrap h1 {
+    margin: 0;
+    font-size: 2.15rem;
 }
 
-/* Description */
-.business-description {
-    font-size: 0.95rem;
-    color: #9ca3af;
-    margin-bottom: 16px;
+.meta-row,
+.status-row,
+.rating-row {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
 }
 
-/* Categories */
-.business-categories {
-    margin-bottom: 12px;
+.dot {
+    color: #94a3b8;
 }
 
-.business-categories .badge {
-    background-color: #2563eb;
-    font-weight: 500;
+.status-row .open {
+    color: #22c55e;
 }
 
-/* Rating */
-.business-rating {
-    font-size: 0.9rem;
-    color: #e5e7eb;
+.status-row .closed {
+    color: #f87171;
 }
 
-/* =========================================================
-   FAVORITE BUTTON
-========================================================= */
-.favourite-btn {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-.favourite-btn svg {
-    width: 100%;
-    height: 100%;
-    fill: none;
-    stroke: #d6336c;
-    stroke-width: 2;
-    transition: transform 0.15s ease;
-}
-
-.favourite-btn:hover svg {
-    transform: scale(1.1);
-}
-
-#heart-filled {
-    display: none;
-    fill: #d6336c;
-    stroke: none;
-}
-
-.business-page {
-    max-width: 900px;
-    margin: auto;
-    padding-bottom: 60px;
-}
-
-/* HERO */
-.business-hero {
-    position: relative;
-    height: 300px;
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.business-hero img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* HEADER */
-.business-header {
-    margin-top: 20px;
-}
-
-.business-header h1 {
-    font-size: 2rem;
-    margin-bottom: 6px;
-}
-
-.rating {
+.rating-row {
     color: #facc15;
-    font-size: 0.95rem;
 }
 
-.categories .badge {
-    background: #2563eb;
-    margin-right: 6px;
+.action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
 }
 
-/* SECTIONS */
+#favourite-btn,
+#share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .business-section {
-    margin-top: 30px;
+    margin-top: 16px;
+    padding: 16px;
 }
 
 .business-section h3 {
     margin-bottom: 10px;
 }
 
-/* REVIEWS */
+.info-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid #1f2933;
+    border-radius: 8px;
+    background: #111c32;
+}
+
+.info-hours.closed {
+    color: #f87171;
+}
+
+.info-hours.open {
+    color: #86efac;
+}
+
+.deals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.deal-card {
+    border: 1px solid #1f2933;
+    border-radius: 10px;
+    background: #111c32;
+    padding: 12px;
+}
+
+.deal-title {
+    margin: 0 0 6px;
+    font-size: 1rem;
+}
+
+.deal-description {
+    color: #cbd5e1;
+    margin-bottom: 4px;
+}
+
+.deal-range {
+    font-size: .85rem;
+    color: #94a3b8;
+}
+
+.review-breakdown {
+    display: grid;
+    gap: 10px;
+}
+
+.review-breakdown-row {
+    display: grid;
+    grid-template-columns: 46px 1fr 28px;
+    gap: 8px;
+    align-items: center;
+}
+
+.review-breakdown-row .progress {
+    height: 12px;
+    background-color: #1f2937;
+}
+
+.business-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.sidebar-card {
+    padding: 16px;
+}
+
+.sidebar-line {
+    margin-bottom: 10px;
+    color: #cbd5e1;
+    word-break: break-word;
+}
+
 .review-box {
     margin-top: 20px;
     display: flex;
@@ -162,81 +188,8 @@
     padding: 10px;
 }
 
-.info-grid {
-    display: grid;
-    gap: 8px;
-    max-width: 460px;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    border: 1px solid #1f2933;
-    border-radius: 10px;
-    background-color: #0f172a;
-}
-
-.info-day {
-    font-weight: 600;
-}
-
-.info-hours.closed {
-    color: #f87171;
-}
-
-.info-hours.open {
-    color: #86efac;
-}
-
-.deals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 12px;
-}
-
-.deal-card {
-    border: 1px solid #1f2933;
-    border-radius: 10px;
-    padding: 12px;
-    background-color: #0f172a;
-}
-
-.deal-title {
-    font-size: 1rem;
-    margin-bottom: 6px;
-}
-
-.deal-description {
-    color: #cbd5e1;
-    margin-bottom: 4px;
-}
-
-.deal-range {
-    font-size: 0.85rem;
-    color: #94a3b8;
-}
-
-.review-breakdown {
-    max-width: 560px;
-    display: grid;
-    gap: 10px;
-}
-
-.review-breakdown-row {
-    display: grid;
-    grid-template-columns: 46px 1fr 28px;
-    gap: 10px;
-    align-items: center;
-}
-
-.review-breakdown-row .progress {
-    height: 12px;
-    background-color: #1f2937;
-}
-
-.stars-label,
-.stars-count {
-    font-size: 0.9rem;
+@media (max-width: 960px) {
+    .business-layout {
+        grid-template-columns: 1fr;
+    }
 }
