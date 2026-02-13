@@ -109,7 +109,10 @@ const businessSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // Legacy summary field retained for backwards compatibility.
     description: String,
+    shortDescription: String,
+    longDescription: String,
 
     categories: {
         type: [String],

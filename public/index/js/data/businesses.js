@@ -26,7 +26,8 @@ async function loadBusinesses() {
     // SEARCH
     businesses = businesses.filter(business =>
         business.name.toLowerCase().includes(search) ||
-        business.description.toLowerCase().includes(search)
+        (business.shortDescription || business.description || "").toLowerCase().includes(search) ||
+        (business.longDescription || "").toLowerCase().includes(search)
     );
 
     // SORT
@@ -92,7 +93,7 @@ async function loadBusinesses() {
                     </div>
                     <div class="card-body">
                         <h5>${business.name}</h5>
-                        <p class="small">${business.description}</p>
+                        <p class="small">${business.shortDescription || business.description || ""}</p>
                         <div class="mb-2">
                             ${business.categories.map(c =>
                                 `<span class="badge bg-primary me-1">${c}</span>`

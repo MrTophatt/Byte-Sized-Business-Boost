@@ -15,7 +15,7 @@ const STORAGE_KEYS = {
 function syncTopFiltersUI() {
     // Sort UI
     document.querySelectorAll("#sortDropdown .dropdown-item").forEach(btn => {
-        const isActive = btn.dataset.value === sortBy;
+        const isActive = btn.dataset.value.toUpperCase() === sortBy.toUpperCase();
         btn.classList.toggle("selected", isActive);
 
         if (isActive) {

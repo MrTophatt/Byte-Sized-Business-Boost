@@ -103,23 +103,23 @@ function setupShareButton(business) {
     if (!shareButton) return;
 
     shareButton.onclick = async () => {
-        const currentUrl = window.location.href;
-        const shareText = `Check out ${business.name} on Byte-Sized Business Boost`;
+        const shareMessage = `${business.name}
+            ${business.shortDescription || business.description || ""}
+            Shared from Byte-Sized Business Boost desktop app`;
 
         if (navigator.share) {
             try {
-                await navigator.share({ title: business.name, text: shareText, url: currentUrl });
+                await navigator.share({ title: business.name, text: shareMessage });
                 return;
             } catch (error) {
                 console.warn("Native share cancelled", error);
             }
         }
 
-        const encodedUrl = encodeURIComponent(currentUrl);
-        const encodedText = encodeURIComponent(shareText);
+        const encodedText = encodeURIComponent(shareMessage);
 
         const selected = window.prompt(
-            "Type option: copy, email, x, facebook",
+            "Type option: copy, email, x",
             "copy"
         );
 
@@ -127,23 +127,18 @@ function setupShareButton(business) {
         const choice = selected.toLowerCase();
 
         if (choice === "copy") {
-            await navigator.clipboard.writeText(currentUrl);
-            alert("Link copied to clipboard");
+            await navigator.clipboard.writeText(shareMessage);
+            alert("Business details copied to clipboard");
             return;
         }
 
         if (choice === "email") {
-            window.location.href = `mailto:?subject=${encodeURIComponent(business.name)}&body=${encodedText}%20${encodedUrl}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(`Check out ${business.name}`)}&body=${encodedText}`;
             return;
         }
 
         if (choice === "x") {
             window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, "_blank");
-            return;
-        }
-
-        if (choice === "facebook") {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, "_blank");
         }
     };
 }
@@ -181,7 +176,8 @@ function renderTimetable(timetable = []) {
  */
 function renderRunningDeals(deals = []) {
     const dealsElement = document.getElementById("deals");
-    if (!dealsElement) return;
+    const dealsSidebarCard = document.getElementById("deals-sidebar-card");
+    if (!dealsElement || !dealsSidebarCard) return;
 
     const now = new Date();
     const runningDeals = deals.filter((deal) => {
@@ -193,10 +189,12 @@ function renderRunningDeals(deals = []) {
     });
 
     if (runningDeals.length === 0) {
-        dealsElement.innerHTML = '<p class=" mb-0">No active deals right now.</p>';
+        dealsSidebarCard.style.display = "none";
+        dealsElement.innerHTML = "";
         return;
     }
 
+    dealsSidebarCard.style.display = "block";
     dealsElement.innerHTML = runningDeals
         .map((deal) => `
             <article class="deal-card">
@@ -301,7 +299,8 @@ async function loadBusiness() {
             .map((category) => `<span class="badge bg-primary me-1">${category}</span>`)
             .join("");
 
-        document.getElementById("description").textContent = business.description;
+        document.getElementById("short-description").textContent = business.shortDescription || business.description || "";
+        document.getElementById("long-description").textContent = business.longDescription || business.description || "";
 
         renderTopSummary(business);
         renderContactInfo(business);
