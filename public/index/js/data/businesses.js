@@ -13,6 +13,13 @@ let searchTimeout = null;
 let minRating = DEFAULT_MIN_RATING;
 let maxRating = DEFAULT_MAX_RATING;
 
+function formatCompactCount(value) {
+    const number = Number(value) || 0;
+    if (number >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
+    if (number >= 1000) return `${(number / 1000).toFixed(1)}k`;
+    return String(number);
+}
+
 function clampRating(value) {
     return Math.min(DEFAULT_MAX_RATING, Math.max(DEFAULT_MIN_RATING, value));
 }
@@ -182,36 +189,46 @@ async function loadBusinesses() {
         }
     }
 
-        container.innerHTML = "";
+    container.innerHTML = "";
     businesses.forEach(business => {
         const isFavourited = favourites.includes(business._id);
         const favouritesCount = business.favouritesCount ?? 0;
+        const reviewCount = business.reviewCount ?? 0;
+        const avgRating = business.avgRating ?? 0;
 
         const div = document.createElement("div");
+        div.className = "business-card-wrap";
         div.innerHTML = `
-            <div class="card h-100 position-relative bg-dark text-light">
-                <a href="/business/${business._id}" class="text-decoration-none text-light">
-                    <img src="${business.bannerImageUrl}" class="card-img-top">
-                    <div class="favourite-icon" style="display: ${isFavourited ? "block" : "none"};">
-                        <svg viewBox="0 0 24 24" fill="#d6336c">
-                            <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8 2.5 0 4 2 5 3.5C13 6 14.5 4 17 4c4.5 0 7 4.6 5 8-2.5 4.3-10 9-10 9z"/>
-                        </svg>
-                    </div>
-                    <div class="card-body">
-                        <h5>${business.name}</h5>
-                        <p class="small">${business.shortDescription || ""}</p>
-                        <div class="mb-2">
-                            ${business.categories.map(c =>
-                                `<span class="badge bg-primary me-1">${c}</span>`
-                            ).join("")}
+            <article class="business-card h-100 position-relative">
+                <a href="/business/${business._id}" class="business-card-link text-decoration-none text-light">
+                    <img src="${business.bannerImageUrl || business.imageUrl}" class="business-card-banner" alt="${business.name} banner">
+                    <div class="business-card-content">
+                        <div class="business-card-top">
+                            <img src="${business.logoImageUrl || business.imageUrl}" class="business-card-logo" alt="${business.name} logo">
+                            <div class="business-card-heading">
+                                <h5 class="business-card-title">${business.name}</h5>
+                                <p class="business-card-owner">by ${business.ownerName || "Local owner"}</p>
+                            </div>
                         </div>
-                        <small>
-                            <i class="bi bi-star-fill text-warning"></i> ${business.avgRating} (${business.reviewCount}) |
-                            <i class="bi bi-heart-fill text-danger"></i> ${favouritesCount}
-                        </small>
+
+                        <p class="business-card-description">${business.shortDescription || business.description || ""}</p>
+
+                        <div class="business-card-tags">
+                            ${business.categories.map(c => `<span class="business-pill">${c}</span>`).join("")}
+                        </div>
+
+                        <div class="business-card-stats">
+                            <span><i class="bi bi-star-fill text-warning"></i> ${avgRating} <span class="muted">(${reviewCount})</span></span>
+                            <span><i class="bi bi-heart-fill text-danger"></i> ${formatCompactCount(favouritesCount)}</span>
+                        </div>
                     </div>
                 </a>
-            </div>
+                <div class="favourite-icon" style="display: ${isFavourited ? "block" : "none"};">
+                    <svg viewBox="0 0 24 24" fill="#d6336c">
+                        <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8 2.5 0 4 2 5 3.5C13 6 14.5 4 17 4c4.5 0 7 4.6 5 8-2.5 4.3-10 9-10 9z"/>
+                    </svg>
+                </div>
+            </article>
         `;
         container.appendChild(div);
     });

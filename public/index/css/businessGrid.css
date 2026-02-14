@@ -1,19 +1,116 @@
 .business-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
     gap: 18px;
 }
 
-.card {
-    background-color: #0f172a;
-    border: 1px solid #1f2933;
-    border-radius: 12px;
-    overflow: hidden;
+.business-card-wrap {
+    min-width: 0;
 }
 
-.card-img-top {
+.business-card {
+    background: #2c313d;
+    border: 1px solid #444d5f;
+    border-radius: 14px;
+    overflow: hidden;
+    color: #e5e7eb;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, border-color 0.2s ease;
+}
+
+.business-card:hover {
+    transform: translateY(-2px);
+    border-color: #637089;
+}
+
+.business-card-link {
+    display: block;
+    color: inherit;
+}
+
+.business-card-banner {
+    width: 100%;
     height: 140px;
     object-fit: cover;
+    border-bottom: 1px solid #444d5f;
+}
+
+.business-card-content {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.business-card-top {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.business-card-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #566178;
+    background: #1f2937;
+    flex-shrink: 0;
+}
+
+.business-card-heading {
+    min-width: 0;
+}
+
+.business-card-title {
+    margin: 0;
+    font-size: 1.65rem;
+    line-height: 1.1;
+    font-weight: 700;
+    color: #f9fafb;
+}
+
+.business-card-owner {
+    margin: 2px 0 0;
+    font-size: 0.97rem;
+    color: #b7c0cf;
+}
+
+.business-card-description {
+    margin: 0;
+    color: #e5e7eb;
+    font-size: 0.94rem;
+    line-height: 1.35;
+    min-height: 2.6em;
+}
+
+.business-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.business-pill {
+    font-size: 0.82rem;
+    border-radius: 999px;
+    padding: 3px 10px;
+    border: 1px solid #5a6478;
+    color: #d3d9e4;
+    background: #3a4150;
+    text-transform: lowercase;
+}
+
+.business-card-stats {
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #d5dbea;
+    font-size: 0.98rem;
+}
+
+.business-card-stats .muted {
+    color: #9ba8bc;
 }
 
 .favourite-icon {
@@ -22,4 +119,14 @@
     right: 10px;
     width: 26px;
     height: 26px;
+}
+
+@media (max-width: 768px) {
+    .business-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .business-card-title {
+        font-size: 1.35rem;
+    }
 }
