@@ -42,7 +42,9 @@ const BUSINESS_SEED_DATA = [
                 endDate: new Date("2026-12-31"),
                 isActive: true
             }
-        ]
+        ],
+        bannerImageUrl: "./images/businesses/banners/maple-leaf-cafe-banner.svg",
+        logoImageUrl: "/images/businesses/logos/maple-leaf-cafe-logo.svg"
     },
     {
         name: "Northside Fitness",
@@ -72,7 +74,9 @@ const BUSINESS_SEED_DATA = [
                 endDate: new Date("2026-06-30"),
                 isActive: true
             }
-        ]
+        ],
+        bannerImageUrl: "./images/businesses/banners/northside-fitness-banner.svg",
+        logoImageUrl: "/images/businesses/logos/northside-fitness-logo.svg"
     },
     {
         name: "TechNest Repairs",
@@ -91,7 +95,9 @@ const BUSINESS_SEED_DATA = [
             wednesday: { opensAt: "09:00", closesAt: "18:00" },
             thursday: { opensAt: "09:00", closesAt: "18:00" },
             friday: { opensAt: "09:00", closesAt: "18:00" }
-        }
+        },
+        bannerImageUrl: "./images/businesses/banners/technest-repairs-banner.svg",
+        logoImageUrl: "/images/businesses/logos/technest-repairs-logo.svg"
     },
     {
         name: "Bright Minds Tutoring",
@@ -110,7 +116,9 @@ const BUSINESS_SEED_DATA = [
             wednesday: { opensAt: "15:00", closesAt: "20:00" },
             thursday: { opensAt: "15:00", closesAt: "20:00" },
             sunday: { opensAt: "10:00", closesAt: "14:00" }
-        }
+        },
+        bannerImageUrl: "./images/businesses/banners/bright-minds-tutoring-banner.svg",
+        logoImageUrl: "/images/businesses/logos/bright-minds-tutoring-logo.svg"
     },
     {
         name: "Downtown Boutique",
@@ -129,7 +137,9 @@ const BUSINESS_SEED_DATA = [
             thursday: { opensAt: "10:00", closesAt: "17:00" },
             friday: { opensAt: "10:00", closesAt: "19:00" },
             saturday: { opensAt: "10:00", closesAt: "19:00" }
-        }
+        },
+        bannerImageUrl: "./images/businesses/banners/downtown-boutique-banner.svg",
+        logoImageUrl: "/images/businesses/logos/downtown-boutique-logo.svg"
     }
 ];
 
@@ -215,7 +225,8 @@ async function seed() {
     const businesses = await Business.insertMany(
         BUSINESS_SEED_DATA.map((business) => ({
             ...business,
-            timetable: createTimetable(business.timetable)
+            timetable: createTimetable(business.timetable),
+            imageUrl: business.bannerImageUrl || business.imageUrl
         }))
     );
 

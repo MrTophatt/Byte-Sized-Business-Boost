@@ -1,4 +1,4 @@
-Byte-Sized Business Boost is a community-focused web app that helps people discover, support, and stay connected with small, local businesses. It combines curated business listings, user reviews, and favourites to make it easy to find great local spots and keep coming back.
+yte-Sized Business Boost is a community-focused web app that helps people discover, support, and stay connected with small, local businesses. It combines curated business listings, user reviews, and favourites to make it easy to find great local spots and keep coming back.
 
 ## Why it matters (non-technical overview)
 
@@ -58,6 +58,10 @@ All API routes are prefixed with `/api`.
   - `GET /api/reviews/me` — List reviews from the current user (header: `x-user-token`)
 - **Categories**
   - `GET /api/categories` — List supported business categories
+
+## Copyrighted material
+
+- Seeded business image asset ownership/usage details are documented in `COPYRIGHTED_MATERIAL.md`.
 
 ## Local development
 

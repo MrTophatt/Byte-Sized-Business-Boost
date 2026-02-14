@@ -357,7 +357,7 @@ async function loadBusiness() {
         const business = await businessResponse.json();
 
         const businessLogo = document.getElementById("business-logo");
-        businessLogo.src = business.imageUrl;
+        businessLogo.src = business.logoImageUrl;
         businessLogo.alt = business.name;
 
         document.getElementById("business-name").textContent = business.name;

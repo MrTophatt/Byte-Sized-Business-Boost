@@ -109,8 +109,7 @@ const businessSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // Legacy summary field retained for backwards compatibility.
-    description: String,
+
     shortDescription: String,
     longDescription: String,
 
@@ -157,7 +156,12 @@ const businessSchema = new mongoose.Schema({
         default: []
     },
 
-    imageUrl: {
+    bannerImageUrl: {
+        type: String,
+        default: "/images/defaultBusiness.png"
+    },
+
+    logoImageUrl: {
         type: String,
         default: "/images/defaultBusiness.png"
     }

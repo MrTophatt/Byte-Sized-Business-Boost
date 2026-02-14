@@ -191,7 +191,7 @@ async function loadBusinesses() {
         div.innerHTML = `
             <div class="card h-100 position-relative bg-dark text-light">
                 <a href="/business/${business._id}" class="text-decoration-none text-light">
-                    <img src="${business.imageUrl}" class="card-img-top">
+                    <img src="${business.bannerImageUrl}" class="card-img-top">
                     <div class="favourite-icon" style="display: ${isFavourited ? "block" : "none"};">
                         <svg viewBox="0 0 24 24" fill="#d6336c">
                             <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8 2.5 0 4 2 5 3.5C13 6 14.5 4 17 4c4.5 0 7 4.6 5 8-2.5 4.3-10 9-10 9z"/>
@@ -199,7 +199,7 @@ async function loadBusinesses() {
                     </div>
                     <div class="card-body">
                         <h5>${business.name}</h5>
-                        <p class="small">${business.shortDescription || business.description || ""}</p>
+                        <p class="small">${business.shortDescription || ""}</p>
                         <div class="mb-2">
                             ${business.categories.map(c =>
                                 `<span class="badge bg-primary me-1">${c}</span>`
