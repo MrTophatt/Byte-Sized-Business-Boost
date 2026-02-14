@@ -72,6 +72,45 @@ function getTodaySchedule(timetable = []) {
     return timetable.find((entry) => entry.day === todayKey) || null;
 }
 
+function parseTimeToMinutes(timeValue) {
+    if (!timeValue || typeof timeValue !== "string") return null;
+
+    const [hoursRaw, minutesRaw = "0"] = timeValue.split(":");
+    const hours = Number(hoursRaw);
+    const minutes = Number(minutesRaw);
+
+    if (
+        Number.isNaN(hours) ||
+        Number.isNaN(minutes) ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+    ) {
+        return null;
+    }
+
+    return (hours * 60) + minutes;
+}
+
+function isCurrentlyOpen(schedule, now = new Date()) {
+    if (!schedule || schedule.isClosed) return false;
+
+    const opensAtMinutes = parseTimeToMinutes(schedule.opensAt);
+    const closesAtMinutes = parseTimeToMinutes(schedule.closesAt);
+    if (opensAtMinutes === null || closesAtMinutes === null) return false;
+
+    const nowMinutes = (now.getHours() * 60) + now.getMinutes();
+
+    if (opensAtMinutes === closesAtMinutes) return true;
+
+    if (opensAtMinutes < closesAtMinutes) {
+        return nowMinutes >= opensAtMinutes && nowMinutes < closesAtMinutes;
+    }
+
+    return nowMinutes >= opensAtMinutes || nowMinutes < closesAtMinutes;
+}
+
 /**
  * Renders business owner and open status text in the top header.
  * @param {Object} business - Business object from API.
@@ -85,15 +124,17 @@ function renderTopSummary(business) {
     ownerNameElement.textContent = business.ownerName || "Business owner";
 
     const todaySchedule = getTodaySchedule(business.timetable || []);
-    if (!todaySchedule || todaySchedule.isClosed) {
-        openStatusElement.textContent = "Closed";
-        openStatusElement.className = "closed";
+    const hasTodaySchedule = Boolean(todaySchedule && !todaySchedule.isClosed);
+    const currentlyOpen = isCurrentlyOpen(todaySchedule);
+
+    openStatusElement.textContent = currentlyOpen ? "Open" : "Closed";
+    openStatusElement.className = currentlyOpen ? "open" : "closed";
+
+    if (!hasTodaySchedule) {
         todayHoursElement.textContent = "today";
         return;
     }
 
-    openStatusElement.textContent = "Open";
-    openStatusElement.className = "open";
     todayHoursElement.textContent = `${formatTime12Hour(todaySchedule.opensAt)} - ${formatTime12Hour(todaySchedule.closesAt)} today`;
 }
 
