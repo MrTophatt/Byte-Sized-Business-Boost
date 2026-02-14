@@ -1,5 +1,6 @@
 const STAR_OPTIONS = [1, 2, 3, 4, 5];
 const REVIEW_PREVIEW_MAX_LENGTH = 200;
+let currentReviewUserId = null;
 
 /**
  * Builds a star icon row for a numeric rating value.
@@ -34,12 +35,21 @@ async function loadReviews() {
         const reviews = await response.json();
         const reviewList = document.getElementById("review-list");
 
-        if (reviews.length === 0) {
+        const prioritizedReviews = [...reviews];
+        if (currentReviewUserId) {
+            const myReviewIndex = prioritizedReviews.findIndex((review) => review.user?._id === currentReviewUserId);
+            if (myReviewIndex > 0) {
+                const [myReview] = prioritizedReviews.splice(myReviewIndex, 1);
+                prioritizedReviews.unshift(myReview);
+            }
+        }
+
+        if (prioritizedReviews.length === 0) {
             reviewList.innerHTML = '<p>No reviews yet.</p>';
             return;
         }
 
-        reviewList.innerHTML = reviews.map((review) => {
+        reviewList.innerHTML = prioritizedReviews.map((review, index) => {
             const user = review.user || {};
             const avatar = user.avatarUrl || "/images/defaultAvatar.png";
             const username = user.name || "Anonymous";
@@ -49,25 +59,25 @@ async function loadReviews() {
                 : review.body;
             const hasMore = review.body.length > REVIEW_PREVIEW_MAX_LENGTH;
 
+            const isCurrentUserReview = currentReviewUserId && review.user?._id === currentReviewUserId;
+
             return `
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="${avatar}" alt="${username}" class="rounded-circle me-2" width="40" height="40">
-                            <strong>${username}</strong>
-                            <span class="ms-auto">${renderStars(review.rating)}</span>
-                        </div>
-
-                        <h6 class="fw-bold">${review.title}</h6>
-
-                        <p class="review-body mb-2">
-                            ${shortBody}
-                            ${hasMore ? '<span class="fade-text">... </span><a href="#" class="see-more">See more</a>' : ""}
-                        </p>
-
-                        <small class="text-muted">${new Date(review.createdAt).toLocaleDateString()}</small>
+                <article class="review-card ${isCurrentUserReview ? "review-card-owner" : ""}">
+                    <div class="review-header">
+                        <img src="${avatar}" alt="${username}" class="review-avatar">
+                        <strong class="review-user-name">${username}</strong>
+                        <span class="review-rating ms-auto">${renderStars(review.rating)}</span>
                     </div>
-                </div>
+
+                    <h6 class="review-title">${review.title}</h6>
+
+                    <p class="review-body review-comment mb-2">
+                        ${shortBody}
+                        ${hasMore ? '<span class="fade-text">... </span><a href="#" class="see-more">See more</a>' : ""}
+                    </p>
+
+                    <small class="review-date">${new Date(review.createdAt).toLocaleDateString()}</small>
+                </article>
             `;
         }).join("");
 
@@ -114,6 +124,22 @@ async function setupReviewBox(businessId, userToken) {
         return;
     }
 
+    currentReviewUserId = user._id ? String(user._id) : null;
+
+    const existingReviewResponse = await fetch(`/api/reviews/${businessId}`);
+    if (!existingReviewResponse.ok) {
+        reviewBox.style.display = "none";
+        return;
+    }
+
+    const existingReviews = await existingReviewResponse.json();
+    const hasExistingReview = existingReviews.some((review) => review.user?._id === currentReviewUserId);
+
+    if (hasExistingReview) {
+        reviewBox.style.display = "none";
+        return;
+    }
+
     reviewBox.style.display = "flex";
 
     const textarea = reviewBox.querySelector("textarea");
@@ -121,10 +147,6 @@ async function setupReviewBox(businessId, userToken) {
 
     if (!reviewBox.querySelector(".star-rating")) {
         reviewBox.insertAdjacentHTML("afterbegin", `
-            <input class="review-title-input"
-                placeholder="Review title"
-                maxlength="40">
-
             <div class="star-rating mb-2" data-rating="0">
                 ${STAR_OPTIONS.map((value) => `
                     <span class="star" data-value="${value}">
@@ -132,6 +154,10 @@ async function setupReviewBox(businessId, userToken) {
                     </span>
                 `).join("")}
             </div>
+            
+            <input class="review-title-input"
+                placeholder="Review title"
+                maxlength="40">
         `);
     }
 
@@ -217,6 +243,8 @@ async function setupReviewBox(businessId, userToken) {
         selectedRating = 0;
         starContainer.dataset.rating = 0;
         renderStarRating(0);
+
+        reviewBox.style.display = "none";
 
         if (typeof loadReviews === "function") {
             loadReviews();

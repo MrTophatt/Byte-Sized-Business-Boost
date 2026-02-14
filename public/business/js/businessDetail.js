@@ -378,12 +378,12 @@ async function loadBusiness() {
 
         await Promise.all([loadFavouriteStatistics(), loadReviewStatistics()]);
 
-        if (typeof loadReviews === "function") {
-            await loadReviews();
+        if (typeof setupReviewBox === "function") {
+            await setupReviewBox(BUSINESS_ID, userToken);
         }
 
-        if (typeof setupReviewBox === "function") {
-            setupReviewBox(BUSINESS_ID, userToken);
+        if (typeof loadReviews === "function") {
+            await loadReviews();
         }
     } catch (error) {
         console.error(error);
