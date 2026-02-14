@@ -1,3 +1,8 @@
+/* Keep layout width stable when vertical scrollbar appears/disappears. */
+html {
+    scrollbar-gutter: stable;
+}
+
 /* ===== THEME ===== */
 body {
     margin: 0;
