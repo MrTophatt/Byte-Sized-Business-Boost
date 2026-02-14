@@ -28,10 +28,37 @@ function formatDay(day) {
  */
 function formatDealDate(dateValue) {
     const date = new Date(dateValue);
-    return date.toLocaleDateString(undefined, {
+    return date.toLocaleString(undefined, {
         year: "numeric",
         month: "short",
-        day: "numeric"
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+    });
+}
+
+/**
+ * Formats a timetable time string (24-hour) into a localized 12-hour string.
+ * @param {string|null} timeValue - Raw time like "13:30".
+ * @returns {string} 12-hour formatted time or "--" when unavailable.
+ */
+function formatTime12Hour(timeValue) {
+    if (!timeValue || typeof timeValue !== "string") return "--";
+
+    const [hoursRaw, minutesRaw = "00"] = timeValue.split(":");
+    const hours = Number(hoursRaw);
+    const minutes = Number(minutesRaw);
+
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return timeValue;
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+
+    return date.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
     });
 }
 
@@ -67,7 +94,7 @@ function renderTopSummary(business) {
 
     openStatusElement.textContent = "Open";
     openStatusElement.className = "open";
-    todayHoursElement.textContent = `${todaySchedule.opensAt} - ${todaySchedule.closesAt} today`;
+    todayHoursElement.textContent = `${formatTime12Hour(todaySchedule.opensAt)} - ${formatTime12Hour(todaySchedule.closesAt)} today`;
 }
 
 /**
@@ -158,7 +185,7 @@ function renderTimetable(timetable = []) {
 
     timetableElement.innerHTML = timetable
         .map((entry) => {
-            const hours = entry.isClosed ? "Closed" : `${entry.opensAt} - ${entry.closesAt}`;
+            const hours = entry.isClosed ? "Closed" : `${formatTime12Hour(entry.opensAt)} - ${formatTime12Hour(entry.closesAt)}`;
 
             return `
                 <div class="info-row">

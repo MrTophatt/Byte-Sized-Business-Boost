@@ -33,3 +33,27 @@
     flex-direction: column;
     gap: 6px;
 }
+
+.filters .accordion-item + .accordion-item {
+    margin-top: 10px;
+}
+
+.rating-filter-body {
+    gap: 10px;
+}
+
+.rating-slider-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rating-slider-wrap .form-range {
+    margin: 0;
+}
+
+.rating-filter-label {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    margin: 0;
+}

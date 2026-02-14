@@ -1,6 +1,101 @@
 const container = document.getElementById("businessList");
 const searchInput = document.getElementById("searchInput");
+const ratingMinInput = document.getElementById("ratingMinInput");
+const ratingMaxInput = document.getElementById("ratingMaxInput");
+const ratingMinValue = document.getElementById("ratingMinValue");
+const ratingMaxValue = document.getElementById("ratingMaxValue");
+const clearRatingFilterBtn = document.getElementById("clearRatingFilterBtn");
+const RATING_FILTER_STORAGE_KEY = "ratingRangeFilter";
+const DEFAULT_MIN_RATING = 0;
+const DEFAULT_MAX_RATING = 5;
 let searchTimeout = null;
+
+let minRating = DEFAULT_MIN_RATING;
+let maxRating = DEFAULT_MAX_RATING;
+
+function clampRating(value) {
+    return Math.min(DEFAULT_MAX_RATING, Math.max(DEFAULT_MIN_RATING, value));
+}
+
+function parseRatingInput(value, fallbackValue) {
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) return fallbackValue;
+
+    return clampRating(parsed);
+}
+
+function saveRatingFilterState() {
+    localStorage.setItem(
+        RATING_FILTER_STORAGE_KEY,
+        JSON.stringify({ minRating, maxRating })
+    );
+}
+
+function syncRatingFilterUI() {
+    if (ratingMinInput) ratingMinInput.value = String(minRating);
+    if (ratingMaxInput) ratingMaxInput.value = String(maxRating);
+
+    if (ratingMinValue) ratingMinValue.textContent = minRating.toFixed(1);
+    if (ratingMaxValue) ratingMaxValue.textContent = maxRating.toFixed(1);
+}
+
+function loadRatingFilterState() {
+    const saved = localStorage.getItem(RATING_FILTER_STORAGE_KEY);
+    if (!saved) return;
+
+    try {
+        const parsed = JSON.parse(saved);
+        minRating = parseRatingInput(parsed.minRating, DEFAULT_MIN_RATING);
+        maxRating = parseRatingInput(parsed.maxRating, DEFAULT_MAX_RATING);
+
+        if (minRating > maxRating) {
+            minRating = DEFAULT_MIN_RATING;
+            maxRating = DEFAULT_MAX_RATING;
+        }
+    } catch (error) {
+        minRating = DEFAULT_MIN_RATING;
+        maxRating = DEFAULT_MAX_RATING;
+        localStorage.removeItem(RATING_FILTER_STORAGE_KEY);
+    }
+}
+
+function applyRatingFilterFromInputs(changedBy) {
+    const nextMin = parseRatingInput(ratingMinInput?.value, minRating);
+    const nextMax = parseRatingInput(ratingMaxInput?.value, maxRating);
+
+    minRating = nextMin;
+    maxRating = nextMax;
+
+    if (minRating > maxRating) {
+        if (changedBy === "min") {
+            maxRating = minRating;
+        } else {
+            minRating = maxRating;
+        }
+    }
+
+    syncRatingFilterUI();
+    saveRatingFilterState();
+
+    currentPage = 1;
+    loadBusinesses();
+}
+
+loadRatingFilterState();
+syncRatingFilterUI();
+
+ratingMinInput?.addEventListener("input", () => applyRatingFilterFromInputs("min"));
+ratingMaxInput?.addEventListener("input", () => applyRatingFilterFromInputs("max"));
+
+clearRatingFilterBtn?.addEventListener("click", () => {
+    minRating = DEFAULT_MIN_RATING;
+    maxRating = DEFAULT_MAX_RATING;
+    syncRatingFilterUI();
+    saveRatingFilterState();
+
+    currentPage = 1;
+    loadBusinesses();
+});
 
 searchInput?.addEventListener("input", () => {
     clearTimeout(searchTimeout);
@@ -54,6 +149,17 @@ async function loadBusinesses() {
         if (includedCategories.size > 0) {
             return cats.some(c => includedCategories.has(c));
         }
+
+        return true;
+    });
+
+    // Rating range filter
+    businesses = businesses.filter((business) => {
+        const rating = Number(business.avgRating);
+        if (Number.isNaN(rating)) return false;
+
+        if (rating < minRating) return false;
+        if (rating > maxRating) return false;
 
         return true;
     });

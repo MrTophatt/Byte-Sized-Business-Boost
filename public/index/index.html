@@ -140,11 +140,11 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="categoryHeading">
                             <button
-                                class="accordion-button collapsed"
+                                class="accordion-button"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#categoryDropdown"
-                                aria-expanded="false"
+                                aria-expanded="true"
                                 aria-controls="categoryDropdown"
                             >
                                 Categories
@@ -153,12 +153,47 @@
 
                         <div
                             id="categoryDropdown"
-                            class="accordion-collapse collapse"
+                            class="accordion-collapse collapse show"
                             aria-labelledby="categoryHeading"
-                            data-bs-parent="#filterAccordion"
                         >
                             <div class="accordion-body">
                                 <!-- checkboxes injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="ratingHeading">
+                            <button
+                                class="accordion-button"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#ratingDropdown"
+                                aria-expanded="true"
+                                aria-controls="ratingDropdown"
+                            >
+                                Rating
+                            </button>
+                        </h2>
+
+                        <div
+                            id="ratingDropdown"
+                            class="accordion-collapse collapse show"
+                            aria-labelledby="ratingHeading"
+                        >
+                            <div class="accordion-body rating-filter-body">
+                                <div class="rating-value-row d-flex justify-content-between small">
+                                    <span class="rating-filter-label">Min: <strong id="ratingMinValue">0.0</strong></span>
+                                    <span class="rating-filter-label">Max: <strong id="ratingMaxValue">5.0</strong></span>
+                                </div>
+
+                                <div class="rating-slider-wrap">
+                                    <input id="ratingMinInput" class="form-range" type="range" min="0" max="5" step="0.1" value="0">
+                                    <input id="ratingMaxInput" class="form-range" type="range" min="0" max="5" step="0.1" value="5">
+                                </div>
+
+                                <button id="clearRatingFilterBtn" class="btn btn-sm btn-outline-secondary mt-1" type="button">Clear rating</button>
                             </div>
                         </div>
                     </div>
