@@ -28,10 +28,10 @@ async function loadReviewStatistics() {
         const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
         const averageRating = (totalRating / reviews.length).toFixed(1);
         RATING_ELEMENT.textContent = averageRating;
-        REVIEW_COUNT_ELEMENT.textContent = `(${reviews.length} reviews)`;
+        REVIEW_COUNT_ELEMENT.textContent = `${reviews.length}`;
     } else {
         RATING_ELEMENT.textContent = "0";
-        REVIEW_COUNT_ELEMENT.textContent = "(0 reviews)";
+        REVIEW_COUNT_ELEMENT.textContent = "0";
     }
 
     renderReviewBreakdown(reviews);
@@ -45,7 +45,7 @@ async function loadFavouriteStatistics() {
     const business = await fetchBusiness();
 
     if (FAV_COUNT_ELEMENT) {
-        FAV_COUNT_ELEMENT.textContent = `| ${business.favouritesCount} favourites`;
+        FAV_COUNT_ELEMENT.textContent = `${business.favouritesCount || 0}`;
     }
 }
 

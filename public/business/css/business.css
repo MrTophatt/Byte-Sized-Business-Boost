@@ -64,7 +64,33 @@
 }
 
 .rating-row {
+    margin-top: 10px;
+    gap: 14px;
+}
+
+.rating-metric {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.rating-metric i {
+    font-size: 1rem;
+}
+
+.rating-metric-star i {
     color: #facc15;
+}
+
+.rating-metric-reviews i {
+    color: #94a3b8;
+}
+
+.rating-metric-favourites i {
+    color: #ef4444;
 }
 
 .short-description {
