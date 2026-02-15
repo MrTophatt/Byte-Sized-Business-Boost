@@ -65,24 +65,17 @@
             : `${firstName}'s Reviews`;
     }
 
-    function renderFavourites(favouritesListElement, businesses, favourites = []) {
+    function renderFavourites(favouritesListElement, businesses = []) {
         favouritesListElement.innerHTML = "";
 
-        if (!favourites.length) {
-            renderEmptyState(favouritesListElement, "No favourites yet.");
-            return;
-        }
-
-        const favouriteBusinesses = businesses.filter((business) => favourites.includes(business._id));
-
-        if (!favouriteBusinesses.length) {
+        if (!businesses.length) {
             renderEmptyState(favouritesListElement, "No favourites yet.");
             return;
         }
 
         const toLabel = (value = "") => value.charAt(0).toUpperCase() + value.slice(1);
 
-        favouriteBusinesses.forEach((business) => {
+        businesses.forEach((business) => {
             const categories = (business.categories || []).slice(0, 3);
             const categoryTagsMarkup = categories
                 .map((category) => `<span class="favourite-business-tag">${toLabel(category)}</span>`)

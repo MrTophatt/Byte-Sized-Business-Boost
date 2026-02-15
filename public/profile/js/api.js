@@ -21,11 +21,19 @@
         return fetchWithAuth(`/api/users/${userId}`);
     }
 
-    async function fetchBusinesses() {
-        const response = await fetch("/api/businesses");
+    async function fetchBusinessesByIds(ids = []) {
+        if (!Array.isArray(ids) || !ids.length) {
+            return [];
+        }
+
+        const uniqueIds = [...new Set(ids.map((id) => String(id)).filter(Boolean))];
+        const query = encodeURIComponent(uniqueIds.join(","));
+        const response = await fetch(`/api/businesses?ids=${query}`);
+
         if (!response.ok) {
             throw new Error("Unable to load businesses");
         }
+
         return response.json();
     }
 
@@ -40,7 +48,7 @@
     window.profileApi = {
         fetchViewer,
         fetchUserById,
-        fetchBusinesses,
+        fetchBusinessesByIds,
         fetchReviewsByUser
     };
 }());

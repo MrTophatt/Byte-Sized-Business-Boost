@@ -1,12 +1,44 @@
 const express = require("express");
 const router = express.Router();
+const { Types } = require("mongoose");
 const { Business } = require("../models/Business");
 const Review = require("../models/Review");
 const User = require("../models/User");
 
 router.get("/", async (req, res) => {
     try {
+        const idsQuery = typeof req.query.ids === "string" ? req.query.ids : "";
+        const requestedIds = idsQuery
+            .split(",")
+            .map((id) => id.trim())
+            .filter((id) => Types.ObjectId.isValid(id));
+
+        const pipeline = [];
+
+        if (requestedIds.length) {
+            const favouriteObjectIds = requestedIds.map((id) => new Types.ObjectId(id));
+
+            pipeline.push(
+                {
+                    $match: {
+                        _id: {
+                            $in: favouriteObjectIds
+                        }
+                    }
+                },
+                {
+                    $addFields: {
+                        __sortOrder: {
+                            $indexOfArray: [favouriteObjectIds, "$_id"]
+                        }
+                    }
+                },
+                { $sort: { __sortOrder: 1 } }
+            );
+        }
+
         const businesses = await Business.aggregate([
+            ...pipeline,
             {
                 $lookup: {
                     from: "reviews",
@@ -53,7 +85,8 @@ router.get("/", async (req, res) => {
             {
                 $project: {
                     reviews: 0,
-                    favouriteStats: 0 // don't send review/favourite documents
+                    favouriteStats: 0, // don't send review/favourite documents
+                    __sortOrder: 0
                 }
             }
         ]);
