@@ -1,11 +1,11 @@
-yte-Sized Business Boost is a community-focused web app that helps people discover, support, and stay connected with small, local businesses. It combines curated business listings, user reviews, and favourites to make it easy to find great local spots and keep coming back.
+Byte-Sized Business Boost is a community-focused web app that helps people discover, support, and stay connected with small, local businesses. It combines curated business listings, user reviews, and favourites to make it easy to find great local spots and keep coming back.
 
 ## Why it matters (non-technical overview)
 
 - **More visibility for local owners:** The app spotlights small businesses with clear categories, reviews, and featured deals so they are easier to discover.
 - **Trust through community reviews:** Visitors can read honest, recent feedback to decide where to shop, eat, or book services.
 - **Repeat engagement:** Favouriting makes it simple to return to businesses you love, helping owners build recurring customers.
-- **Local economic impact:** When people choose local options, more dollars stay in the community—supporting jobs and neighborhood growth.
+- **Local economic impact:** When people choose local options, more dollars stay in the community, supporting jobs and neighborhood growth.
 
 ## How this website could help small businesses
 
@@ -38,26 +38,35 @@ yte-Sized Business Boost is a community-focused web app that helps people discov
 ## API overview
 
 All API routes are prefixed with `/api`.
+> Routes marked with **(auth)** require the `x-user-token` header.
 
 - **Auth**
-  - `POST /api/auth/google` — Log in with Google (expects `{ token }` in the body)
+  - `POST /api/auth/google` - Log in with Google (expects `{ token }` in the body)
+
 - **Users**
-  - `POST /api/users/generate` — Create a guest session (returns a user token)
-  - `POST /api/users/logout` — End a session (header: `x-user-token`)
-  - `GET /api/users/me` — Get current user (header: `x-user-token`)
-  - `GET /api/users/favourites` — Get current user favourites (header: `x-user-token`)
+  - `POST /api/users/generate` - Create a guest session (returns the created user, including a token)
+  - `POST /api/users/logout` **(auth)** - End the current session
+  - `GET /api/users/me` **(auth)** - Get the current authenticated user profile
+  - `GET /api/users/favourites` **(auth)** - Get the current user’s favourite business IDs
+  - `GET /api/users/:id` **(auth)** - Get a specific user profile (email only returned when viewing your own profile)
+
 - **Businesses**
-  - `GET /api/businesses` — List businesses with review/favourite stats
-  - `GET /api/businesses/:id` — Fetch a single business + stats
+  - `GET /api/businesses` - List businesses with computed review/favourite stats
+    - Optional query: `ids=<comma-separated business IDs>` to fetch only specific businesses in the same order
+  - `GET /api/businesses/:id` - Fetch one business with computed rating/review/favourite stats
+
 - **Favourites**
-  - `GET /api/favourites/:businessId` — Check if favourited (header: `x-user-token`)
-  - `POST /api/favourites/:businessId` — Toggle favourite (header: `x-user-token`)
+  - `GET /api/favourites/:businessId` **(auth)** - Check whether the current user has favourited a business
+  - `POST /api/favourites/:businessId` **(auth)** - Toggle favourite status for a business (guest users cannot favourite)
+
 - **Reviews**
-  - `POST /api/reviews/:businessId` — Create a review (header: `x-user-token`)
-  - `GET /api/reviews/:businessId` — List reviews for a business
-  - `GET /api/reviews/me` — List reviews from the current user (header: `x-user-token`)
+  - `POST /api/reviews/:businessId` **(auth)** - Create a review (registered users only; one review per user per business)
+  - `GET /api/reviews/me` **(auth)** - List reviews written by the current user
+  - `GET /api/reviews/user/:userId` **(auth)** - List reviews written by a specific user
+  - `GET /api/reviews/:businessId` - List reviews for a business
+
 - **Categories**
-  - `GET /api/categories` — List supported business categories
+  - `GET /api/categories` - List supported business categories and icon mappings
 
 ## Copyrighted material
 
@@ -86,15 +95,43 @@ GOOGLE_CLIENT_ID=your_google_client_id
 ```
 npm install
 npm run seed
-npm start
+npm run start:web
 ```
 
 Then visit: `http://localhost:3000`
 
+## Electron desktop app
+
+This project also ships with an Electron wrapper so you can run and package the app as a desktop application.
+
+### Run the Electron app locally
+
+```
+npm install
+npm run seed
+npm start
+```
+
+`npm run start` launches Electron (configured to boot from `desktop/main.js`).
+
+### Build distributables
+
+Use the following scripts to generate desktop build output:
+
+```
+# Unpacked directory build (useful for local smoke testing)
+npm run build:dir
+
+# Windows installer + portable package
+npm run build:win
+```
+
+Build artifacts are written to the `release/` directory.
+
 ### Running tests
 
 ```
-npm test
+npm run test
 ```
 
 ## Project structure
