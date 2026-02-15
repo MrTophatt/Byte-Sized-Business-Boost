@@ -1,9 +1,19 @@
+/**
+ * Main Express server entry point.
+ * Responsible for:
+ * - Loading environment variables
+ * - Connecting to the database
+ * - Registering middleware and routes
+ * - Starting and exporting the HTTP server
+ */
 const { loadEnv } = require("./env");
-loadEnv();
+loadEnv(); // Load environment variables before anything else
+
 const express = require("express");
 const { connectDB } = require("./database");
 const path = require("path");
 
+// Route modules
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const businessRoutes = require("./routes/businessRoutes");
@@ -11,15 +21,19 @@ const favouritesRoutes = require("./routes/favouritesRoutes");
 const categoriesRoute = require("./routes/categoriesRoutes");
 const reviewRoutes = require("./routes/reviewsRoutes");
 
-const app = express();
-const publicDir = path.join(__dirname, "public");
+const app = express(); // Create the Express app instance
+const publicDir = path.join(__dirname, "public"); // Directory that contains static frontend assets
 
-app.use(express.json());
-app.use(express.static(publicDir));
+app.use(express.json()); // Parse incoming JSON request bodies
+app.use(express.static(publicDir)); // Serve static files (HTML, CSS, JS, images)
 
+// Configure EJS templating
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// -----------------------
+// API ROUTES
+// -----------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/businesses", businessRoutes);
@@ -27,40 +41,66 @@ app.use("/api/favourites", favouritesRoutes);
 app.use("/api/categories", categoriesRoute);
 app.use("/api/reviews", reviewRoutes);
 
-app.get("/", async (req, res) => {
+// -----------------------
+// PAGE ROUTES
+// -----------------------
+app.get("/", async (req, res) => { // Main landing page
     res.sendFile(path.join(publicDir, "index/index.html"));
 });
 
-app.get("/login", (req, res) => {
-    res.render("login", { GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID });
+app.get("/login", (req, res) => { // Login page (injects OAuth client ID)
+    res.render("login", {
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID
+    });
 });
 
-app.get("/profile", (req, res) => {
+app.get("/profile", (req, res) => { // User profile page
     res.render("profile");
 });
 
-app.get("/business/:id", (req, res) => {
-    res.render("business", { businessId: req.params.id });
+app.get("/business/:id", (req, res) => { // Individual business page
+    res.render("business", {
+        businessId: req.params.id
+    });
 });
 
+/**
+ * Starts the HTTP server after connecting to the database.
+ *
+ * Returns an object containing:
+ * - The active port
+ * - A close() function for graceful shutdown
+ */
 async function startServer({ port = process.env.PORT, host = "0.0.0.0" } = {}) {
+    // Ensure database connection is established first
     await connectDB();
 
     return new Promise((resolve, reject) => {
         const server = app
             .listen(port, host, () => {
                 const address = server.address();
-                const activePort = typeof address === "object" && address ? address.port : port;
+
+                // Determine actual port (useful if port was auto-assigned)
+                const activePort =
+                    typeof address === "object" && address
+                        ? address.port
+                        : port;
 
                 resolve({
                     port: activePort,
-                    close: () => new Promise((done, fail) => server.close(err => (err ? fail(err) : done())))
+
+                    // Provide a close function for controlled shutdown
+                    close: () =>
+                        new Promise((done, fail) =>
+                            server.close(err => (err ? fail(err) : done()))
+                        )
                 });
             })
             .on("error", reject);
     });
 }
 
+// If this file is run directly (not required by Electron)
 if (require.main === module) {
     startServer({ port: process.env.PORT, host: "0.0.0.0" })
         .then(({ port }) => {
@@ -72,5 +112,8 @@ if (require.main === module) {
         });
 }
 
+// Export Express app for reuse (e.g., Electron)
 module.exports = app;
+
+// Export server bootstrap function explicitly
 module.exports.startServer = startServer;

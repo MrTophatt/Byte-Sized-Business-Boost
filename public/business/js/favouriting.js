@@ -27,7 +27,6 @@ async function getUser() {
 
 /**
  * Updates the save button icon/text based on favourite state.
- * @returns {void}
  */
 function updateFavouriteButton() {
     favouriteIcon.className = isFavourited ? "bi bi-bookmark-fill" : "bi bi-bookmark";

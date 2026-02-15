@@ -1,237 +1,249 @@
-const container = document.getElementById("businessList");
-const searchInput = document.getElementById("searchInput");
-const ratingMinInput = document.getElementById("ratingMinInput");
-const ratingMaxInput = document.getElementById("ratingMaxInput");
-const ratingMinValue = document.getElementById("ratingMinValue");
-const ratingMaxValue = document.getElementById("ratingMaxValue");
-const clearRatingFilterBtn = document.getElementById("clearRatingFilterBtn");
-const RATING_FILTER_STORAGE_KEY = "ratingRangeFilter";
-const DEFAULT_MIN_RATING = 0;
-const DEFAULT_MAX_RATING = 5;
-let searchTimeout = null;
+// -----------------------
+// DOM REFERENCES & STATE
+// -----------------------
+const CONTAINER = document.getElementById("businessList"); // Container element where business cards will be rendered
+const SEARCH_INPUT = document.getElementById("searchInput"); // Search input field used to filter businesses by text
+let searchTimeout; // Timeout reference used to debounce search input changes
 
-let minRating = DEFAULT_MIN_RATING;
-let maxRating = DEFAULT_MAX_RATING;
-
-function formatCompactCount(value) {
-    const number = Number(value) || 0;
-    if (number >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
-    if (number >= 1000) return `${(number / 1000).toFixed(1)}k`;
-    return String(number);
-}
-
-function clampRating(value) {
-    return Math.min(DEFAULT_MAX_RATING, Math.max(DEFAULT_MIN_RATING, value));
-}
-
-function parseRatingInput(value, fallbackValue) {
-    const parsed = Number(value);
-    if (Number.isNaN(parsed)) return fallbackValue;
-
-    return clampRating(parsed);
-}
-
-function saveRatingFilterState() {
-    localStorage.setItem(
-        RATING_FILTER_STORAGE_KEY,
-        JSON.stringify({ minRating, maxRating })
-    );
-}
-
-function syncRatingFilterUI() {
-    if (ratingMinInput) ratingMinInput.value = String(minRating);
-    if (ratingMaxInput) ratingMaxInput.value = String(maxRating);
-
-    if (ratingMinValue) ratingMinValue.textContent = minRating.toFixed(1);
-    if (ratingMaxValue) ratingMaxValue.textContent = maxRating.toFixed(1);
-}
-
-function loadRatingFilterState() {
-    const saved = localStorage.getItem(RATING_FILTER_STORAGE_KEY);
-    if (!saved) return;
-
-    try {
-        const parsed = JSON.parse(saved);
-        minRating = parseRatingInput(parsed.minRating, DEFAULT_MIN_RATING);
-        maxRating = parseRatingInput(parsed.maxRating, DEFAULT_MAX_RATING);
-
-        if (minRating > maxRating) {
-            minRating = DEFAULT_MIN_RATING;
-            maxRating = DEFAULT_MAX_RATING;
-        }
-    } catch (error) {
-        minRating = DEFAULT_MIN_RATING;
-        maxRating = DEFAULT_MAX_RATING;
-        localStorage.removeItem(RATING_FILTER_STORAGE_KEY);
-    }
-}
-
-function applyRatingFilterFromInputs(changedBy) {
-    const nextMin = parseRatingInput(ratingMinInput?.value, minRating);
-    const nextMax = parseRatingInput(ratingMaxInput?.value, maxRating);
-
-    minRating = nextMin;
-    maxRating = nextMax;
-
-    if (minRating > maxRating) {
-        if (changedBy === "min") {
-            maxRating = minRating;
-        } else {
-            minRating = maxRating;
-        }
-    }
-
-    syncRatingFilterUI();
-    saveRatingFilterState();
-
-    currentPage = 1;
-    loadBusinesses();
-}
-
-loadRatingFilterState();
-syncRatingFilterUI();
-
-ratingMinInput?.addEventListener("input", () => applyRatingFilterFromInputs("min"));
-ratingMaxInput?.addEventListener("input", () => applyRatingFilterFromInputs("max"));
-
-clearRatingFilterBtn?.addEventListener("click", () => {
-    minRating = DEFAULT_MIN_RATING;
-    maxRating = DEFAULT_MAX_RATING;
-    syncRatingFilterUI();
-    saveRatingFilterState();
-
-    currentPage = 1;
-    loadBusinesses();
-});
-
-searchInput?.addEventListener("input", () => {
+// -----------------------
+// SEARCH INPUT HANDLING
+// -----------------------
+// Adds a debounced input listener to the search field
+// Debouncing prevents rapid re-fetching and re-rendering while the user is typing
+SEARCH_INPUT?.addEventListener("input", () => {
+    // Cancel any pending search execution
     clearTimeout(searchTimeout);
 
+    // Schedule a new search execution after a short delay
     searchTimeout = setTimeout(() => {
+        // Reload businesses using the updated search term
         loadBusinesses();
+
+        // Reload categories so category UI stays in sync with filtered results
         loadCategories();
-    }, 50); // debounce delay
+    }, 50); // Small debounce delay to prevent double rendering and filter desync
 });
 
+/**
+ * Fetches, filters, sorts, paginates, and renders businesses.
+ *
+ * This function:
+ * - Fetches all businesses from the API
+ * - Applies search, category, and rating filters
+ * - Applies sorting and pagination
+ * - Fetches user favourites (if logged in)
+ * - Renders business cards into the DOM
+ */
 async function loadBusinesses() {
-    const res = await fetch("/api/businesses");
+    // -----------------------
+    // FETCH BUSINESSES
+    // -----------------------
+    let res = await fetch("/api/businesses"); // Fetch all businesses from the backend
+
+    // If the API request fails, clear the UI and stop execution
     if (!res.ok) {
         console.error("Failed to load businesses");
-        container.innerHTML = "";
+        CONTAINER.innerHTML = "";
         renderPagination();
         return;
     }
+
+    // Parse the response JSON into an array of business objects
     let businesses = await res.json();
 
-    const search = searchInput?.value?.toLowerCase() ?? "";
+    // -----------------------
+    // SEARCH FILTER
+    // -----------------------
+    let search = SEARCH_INPUT?.value?.toLowerCase() ?? ""; // Read the current search input and normalize it for comparison
 
-    // SEARCH
+    // Filter businesses based on text search
     businesses = businesses.filter(business =>
+        // Match against business name
         business.name.toLowerCase().includes(search) ||
-        (business.shortDescription || business.description || "").toLowerCase().includes(search) ||
-        (business.longDescription || "").toLowerCase().includes(search)
+
+        // Match against short or fallback description
+        (business.shortDescription || business.description || "")
+            .toLowerCase()
+            .includes(search) ||
+
+        // Match against long description
+        (business.longDescription || "")
+            .toLowerCase()
+            .includes(search)
     );
 
-    // SORT
-    if (sortBy === "Rating") {
-        businesses.sort((a, b) => b.avgRating - a.avgRating );
+    // -----------------------
+    // SORTING
+    // -----------------------
+    if (sortBy === "Rating") { // Sort by average rating (highest first)
+        businesses.sort((a, b) => b.avgRating - a.avgRating);
     }
-    if (sortBy === "Reviews") {
+
+    if (sortBy === "Reviews") { // Sort by number of reviews (highest first)
         businesses.sort((a, b) => b.reviewCount - a.reviewCount);
     }
-    if (sortBy === "Favourites") {
+
+    if (sortBy === "Favourites") { // Sort by number of favourites (highest first)
         businesses.sort((a, b) => b.favouritesCount - a.favouritesCount);
     }
-    
-    // Filter businesses
+
+    // -----------------------
+    // CATEGORY FILTERING
+    // -----------------------
     businesses = businesses.filter(business => {
-        const cats = business.categories;
+        let categories = business.categories;
 
-        // Excluded always wins
-        for (const c of cats) {
-            if (excludedCategories.has(c)) return false;
+        // EXCLUDED categories take priority:
+        // If the business contains ANY excluded category, it is removed
+        for (let category of categories) {
+            if (excludedCategories.has(category)) return false;
         }
 
-        // If includes exist, at least one must match
+        // If included categories exist:
+        // The business must match AT LEAST ONE included category
         if (includedCategories.size > 0) {
-            return cats.some(c => includedCategories.has(c));
+            return categories.some(category =>
+                includedCategories.has(category)
+            );
         }
 
+        // If no include filters exist, allow the business
         return true;
     });
 
-    // Rating range filter
-    businesses = businesses.filter((business) => {
-        const rating = Number(business.avgRating);
+    // -----------------------
+    // RATING RANGE FILTER
+    // -----------------------
+    businesses = businesses.filter(business => {
+        // Convert rating to a number
+        let rating = Number(business.avgRating);
+
+        // Discard businesses with invalid or missing ratings
         if (Number.isNaN(rating)) return false;
 
+        // Enforce minimum rating filter
         if (rating < minRating) return false;
+
+        // Enforce maximum rating filter
         if (rating > maxRating) return false;
 
         return true;
     });
 
-    // PAGINATION CALC
-    totalPages = Math.ceil(businesses.length / perPage);
-    if (currentPage > totalPages) currentPage = 1;
+    // -----------------------
+    // PAGINATION
+    // -----------------------
+    totalPages = Math.ceil(businesses.length / perPage); // Calculate total number of pages based on filtered results
 
-    const start = (currentPage - 1) * perPage;
-    const end = start + perPage;
-    businesses = businesses.slice(start, end);
+    if (currentPage > totalPages) currentPage = 1; // Clamp current page to valid bounds
 
+    // Determine slice range for the current page
+    let start = (currentPage - 1) * perPage;
+    let end = start + perPage;
+    businesses = businesses.slice(start, end); // Extract only the businesses for the current page
+
+    // -----------------------
+    // FETCH USER FAVOURITES
+    // -----------------------
     let favourites = [];
-    if (userToken) {
-        const favRes = await fetch("/api/users/favourites", {
-            headers: { "x-user-token": userToken }
+
+    // Only fetch favourites if the user is logged in
+    if (USER_TOKEN) {
+        let favRes = await fetch("/api/users/favourites", {
+            headers: { "x-user-token": USER_TOKEN }
         });
+
+        // If successful, store the list of favourited business IDs
         if (favRes.ok) {
             favourites = (await favRes.json()).favourites;
         }
     }
 
-    container.innerHTML = "";
-    businesses.forEach(business => {
-        const isFavourited = favourites.includes(business._id);
-        const favouritesCount = business.favouritesCount ?? 0;
-        const reviewCount = business.reviewCount ?? 0;
-        const avgRating = business.avgRating ?? 0;
+    // -----------------------
+    // RENDER BUSINESS CARDS
+    // ----------------------- 
+    CONTAINER.innerHTML = ""; // Clear existing business cards
 
-        const div = document.createElement("div");
+    businesses.forEach(business => {
+        // Determine if this business is favourited by the user
+        let isFavourited = favourites.includes(business._id);
+
+        // Safely normalize numeric values
+        let favouritesCount = business.favouritesCount ?? 0;
+        let reviewCount = business.reviewCount ?? 0;
+        let avgRating = business.avgRating ?? 0;
+
+        // Create a wrapper element for the business card
+        let div = document.createElement("div");
         div.className = "business-card-wrap";
+
+        // Populate business card HTML
         div.innerHTML = `
             <article class="business-card h-100 position-relative">
                 <a href="/business/${business._id}" class="business-card-link text-decoration-none text-light">
-                    <img src="${business.bannerImageUrl || business.imageUrl}" class="business-card-banner" alt="${business.name} banner">
+                    <img src="${business.bannerImageUrl || business.imageUrl}"
+                         class="business-card-banner"
+                         alt="${business.name} banner">
+
                     <div class="business-card-content">
                         <div class="business-card-top">
-                            <img src="${business.logoImageUrl || business.imageUrl}" class="business-card-logo" alt="${business.name} logo">
+                            <img src="${business.logoImageUrl || business.imageUrl}"
+                                 class="business-card-logo"
+                                 alt="${business.name} logo">
+
                             <div class="business-card-heading">
                                 <h5 class="business-card-title">${business.name}</h5>
-                                <p class="business-card-owner">by ${business.ownerName || "Local owner"}</p>
+                                <p class="business-card-owner">
+                                    by ${business.ownerName || "Local owner"}
+                                </p>
                             </div>
                         </div>
 
-                        <p class="business-card-description">${business.shortDescription || business.description || ""}</p>
+                        <p class="business-card-description">
+                            ${business.shortDescription || business.description || ""}
+                        </p>
 
                         <div class="business-card-tags">
-                            ${business.categories.map(c => `<span class="business-pill">${c}</span>`).join("")}
+                            ${business.categories
+                                .map(c => `<span class="business-pill">${c}</span>`)
+                                .join("")}
                         </div>
 
                         <div class="business-card-stats">
-                            <span><i class="bi bi-star-fill text-warning"></i> ${avgRating} <span class="muted">(${reviewCount})</span></span>
-                            <span><i class="bi bi-heart-fill text-danger"></i> ${formatCompactCount(favouritesCount)}</span>
+                            <span>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                ${avgRating}
+                                <span class="muted">(${reviewCount})</span>
+                            </span>
+
+                            <span>
+                                <i class="bi bi-heart-fill text-danger"></i>
+                                ${formatCompactCount(favouritesCount)}
+                            </span>
                         </div>
                     </div>
                 </a>
-                <div class="favourite-icon" style="display: ${isFavourited ? "block" : "none"};">
+
+                <!-- Visual indicator shown only if the business is favourited -->
+                <div class="favourite-icon"
+                     style="display: ${isFavourited ? "block" : "none"};">
                     <svg viewBox="0 0 24 24" fill="#d6336c">
-                        <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8 2.5 0 4 2 5 3.5C13 6 14.5 4 17 4c4.5 0 7 4.6 5 8-2.5 4.3-10 9-10 9z"/>
+                        <path d="M12 21s-7.5-4.7-10-9c-2-3.4.5-8 5-8
+                                 2.5 0 4 2 5 3.5
+                                 C13 6 14.5 4 17 4
+                                 c4.5 0 7 4.6 5 8
+                                 -2.5 4.3-10 9-10 9z"/>
                     </svg>
                 </div>
             </article>
         `;
-        container.appendChild(div);
+
+        // Append the completed card to the container
+        CONTAINER.appendChild(div);
     });
 
-    renderPagination();
+    // -----------------------
+    // PAGINATION UI UPDATE
+    // -----------------------
+    renderPagination(); // Re-render pagination controls after business list updates
 }

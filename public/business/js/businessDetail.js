@@ -71,7 +71,11 @@ function getTodaySchedule(timetable = []) {
     const todayKey = DAY_KEYS[new Date().getDay()];
     return timetable.find((entry) => entry.day === todayKey) || null;
 }
-
+/**
+ * Parses and validates time to minutes values so downstream code receives safe numeric input.
+ * @param {any} timeValue Date/time input that will be parsed or formatted.
+ * @returns {any} Returns a value when needed; otherwise updates application state, the DOM, or network side effects.
+ */
 function parseTimeToMinutes(timeValue) {
     if (!timeValue || typeof timeValue !== "string") return null;
 
@@ -92,7 +96,12 @@ function parseTimeToMinutes(timeValue) {
 
     return (hours * 60) + minutes;
 }
-
+/**
+ * Executes is currently open so this part of the feature behaves correctly.
+ * @param {any} schedule Input parameter `schedule` required by this function.
+ * @param {any} now Input parameter `now` required by this function.
+ * @returns {any} Boolean indicating whether the condition is satisfied.
+ */
 function isCurrentlyOpen(schedule, now = new Date()) {
     if (!schedule || schedule.isClosed) return false;
 

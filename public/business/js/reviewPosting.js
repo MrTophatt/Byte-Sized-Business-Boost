@@ -95,9 +95,9 @@ async function loadReviews() {
 
 /**
  * Sets up the review composer box and posting behavior for authenticated users.
- * @param {string} businessId - Business document id.
- * @param {string} userToken - Session token used for API authorization.
- * @returns {Promise<void>}
+ * @param {string} businessId Identifier used to look up the target record.
+ * @param {string} userToken Authentication or session token used to identify the current user.
+ * @returns {Promise<void>} Updates UI or local state via side effects.
  */
 async function setupReviewBox(businessId, userToken) {
     const reviewBox = document.getElementById("review-box");
