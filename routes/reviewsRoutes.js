@@ -13,17 +13,17 @@ router.post("/:businessId", auth, async (req, res) => {
         const { businessId } = req.params;
         const { title, body = "", rating } = req.body;
 
-        // ---- AUTHORIZATION ----
+        // Ensure authenticated user exists
         if (!user) {
             return res.status(401).json({ error: "Unauthorized" });
         }
 
-        // Prevent guest users from posting reviews
+        // Guests cannot submit reviews
         if (user.role === "guest") {
             return res.status(403).json({ error: "Guest users cannot post reviews" });
         }
 
-        // ---- Validation ----
+        // Validate required fields
         if (!title || title.trim().length === 0) {
             return res.status(400).json({ error: "Review title is required" });
         }
@@ -32,7 +32,7 @@ router.post("/:businessId", auth, async (req, res) => {
             return res.status(400).json({ error: "Valid rating is required" });
         }
 
-        // ---- One review per user (soft check) ----
+        // Prevent duplicate reviews by the same user
         const existing = await Review.findOne({ businessId, userId: user._id });
         if (existing) {
             return res.status(409).json({
@@ -40,7 +40,7 @@ router.post("/:businessId", auth, async (req, res) => {
             });
         }
 
-        // ---- Create review ----
+        // Create the review document
         const review = await Review.create({
             businessId,
             userId: user._id,
@@ -52,7 +52,7 @@ router.post("/:businessId", auth, async (req, res) => {
         res.status(201).json(review);
 
     } catch (err) {
-        // Catch unique index violation (hard fail-safe)
+        // Handle unique index violations explicitly
         if (err.code === 11000) {
             return res.status(409).json({
                 error: "You have already reviewed this business"

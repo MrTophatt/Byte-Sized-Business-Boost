@@ -5,8 +5,8 @@
 const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
-
 let loaded = false;
+
 /**
  * Loads environment variables from the first available .env file so config is ready before app startup.
  */

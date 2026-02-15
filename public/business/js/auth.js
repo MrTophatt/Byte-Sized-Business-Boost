@@ -14,6 +14,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     localStorage.removeItem("userToken");
     window.location.href = "/login";
 });
+
 /**
  * Loads user before rendering so UI controls reflect the latest saved or server state.
  * @returns {any} Redirects the user to the login page if they are not loggedin or a valid user.

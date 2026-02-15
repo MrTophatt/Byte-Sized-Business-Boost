@@ -18,8 +18,8 @@ const {
 } = window.businessDetailRenderers;
 
 /**
- * Fetches review statistics and updates the average, review count, and star breakdown.
- * @returns {Promise<void>}
+ * Loads review statistics and updates average rating,
+ * review count, and star distribution breakdown.
  */
 async function loadReviewStatistics() {
     const reviews = await fetchReviews();
@@ -27,6 +27,7 @@ async function loadReviewStatistics() {
     if (reviews.length > 0) {
         const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
         const averageRating = (totalRating / reviews.length).toFixed(1);
+
         RATING_ELEMENT.textContent = averageRating;
         REVIEW_COUNT_ELEMENT.textContent = `${reviews.length}`;
     } else {

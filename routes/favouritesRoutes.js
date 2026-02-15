@@ -2,11 +2,14 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
-// Check if the business is favourited
+/**
+ * GET /favourites/:businessId
+ * Checks whether the authenticated user has favourited a business.
+ */
 router.get("/:businessId", auth, async (req, res) => {
     const user = req.user;
 
-    // Guests cannot favourite
+    // Guest users cannot favourite businesses
     if (user.role === "guest") {
         return res.json({ favourited: false });
     }
@@ -15,16 +18,21 @@ router.get("/:businessId", auth, async (req, res) => {
     res.json({ favourited });
 });
 
-// Toggle favourite
+/**
+ * POST /favourites/:businessId
+ * Toggles favourite status for a business.
+ */
 router.post("/:businessId", auth, async (req, res) => {
     const user = req.user;
 
+    // Prevent guests from modifying favourites
     if (user.role === "guest") {
         return res.status(403).json({ error: "Guests cannot favourite" });
     }
 
     const id = req.params.businessId;
 
+    // Toggle favourite state
     if (user.favourites.includes(id)) {
         user.favourites.pull(id);
     } else {
@@ -32,7 +40,11 @@ router.post("/:businessId", auth, async (req, res) => {
     }
 
     await user.save();
-    res.json({ success: true, favourited: user.favourites.includes(id) });
+
+    res.json({
+        success: true,
+        favourited: user.favourites.includes(id)
+    });
 });
 
 module.exports = router;

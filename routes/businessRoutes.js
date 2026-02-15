@@ -1,10 +1,18 @@
 const express = require("express");
 const router = express.Router();
+
+// Used to validate and construct MongoDB ObjectIds
 const { Types } = require("mongoose");
+
+// Business and related models
 const { Business } = require("../models/Business");
 const Review = require("../models/Review");
 const User = require("../models/User");
 
+/**
+ * Extracts initials from a business name.
+ * Used for generating default logo placeholders.
+ */
 function getBusinessInitials(name = "") {
     const parts = String(name)
         .trim()
@@ -22,6 +30,10 @@ function getBusinessInitials(name = "") {
         .slice(0, 4);
 }
 
+/**
+ * Generates a deterministic background color from a business name.
+ * Ensures consistent branding for generated logos.
+ */
 function getBackgroundColorFromName(name = "") {
     let hash = 0;
 
@@ -34,9 +46,14 @@ function getBackgroundColorFromName(name = "") {
     return `hsl(${hue}, 72%, 44%)`;
 }
 
+/**
+ * Generates a default SVG logo as a data URI.
+ * Used when a business has no uploaded logo.
+ */
 function createDefaultBusinessLogoDataUri(name = "") {
     const initials = getBusinessInitials(name);
     const backgroundColor = getBackgroundColorFromName(name);
+
     const svg = `
         <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="${initials} logo">
         <rect width="128" height="128" rx="28" fill="${backgroundColor}"/>
@@ -46,8 +63,13 @@ function createDefaultBusinessLogoDataUri(name = "") {
     return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
+/**
+ * Ensures a business object always has a valid logo image URL.
+ * Replaces missing or default placeholder logos with generated SVGs.
+ */
 function withDefaultLogo(business) {
     const logoPath = business.logoImageUrl || "";
+
     const isMissingLogo = !logoPath
         || logoPath.includes("/images/defaultBusiness.png")
         || logoPath.includes("defaultBusiness.png");
@@ -64,7 +86,10 @@ function withDefaultLogo(business) {
 
 router.get("/", async (req, res) => {
     try {
+        // Extract optional comma-separated business IDs from query string
         const idsQuery = typeof req.query.ids === "string" ? req.query.ids : "";
+
+        // Validate and normalize ObjectId values
         const requestedIds = idsQuery
             .split(",")
             .map((id) => id.trim())
@@ -72,17 +97,12 @@ router.get("/", async (req, res) => {
 
         const pipeline = [];
 
+        // If specific IDs were requested, preserve order
         if (requestedIds.length) {
             const favouriteObjectIds = requestedIds.map((id) => new Types.ObjectId(id));
 
             pipeline.push(
-                {
-                    $match: {
-                        _id: {
-                            $in: favouriteObjectIds
-                        }
-                    }
-                },
+                { $match: { _id: { $in: favouriteObjectIds } } },
                 {
                     $addFields: {
                         __sortOrder: {
@@ -94,6 +114,7 @@ router.get("/", async (req, res) => {
             );
         }
 
+        // Aggregate businesses with review and favourite statistics
         const businesses = await Business.aggregate([
             ...pipeline,
             {
@@ -109,8 +130,8 @@ router.get("/", async (req, res) => {
                     from: "users",
                     let: { businessId: "$_id" },
                     pipeline: [
-                        { 
-                            $match: { 
+                        {
+                            $match: {
                                 $expr: {
                                     $in: [
                                         "$$businessId",
@@ -142,18 +163,20 @@ router.get("/", async (req, res) => {
             {
                 $project: {
                     reviews: 0,
-                    favouriteStats: 0, // don't send review/favourite documents
+                    favouriteStats: 0,
                     __sortOrder: 0
                 }
             }
         ]);
 
-        // Round ratings for UI consistency
+        // Normalize average ratings to one decimal place
         businesses.forEach(b => {
             b.avgRating = Number(b.avgRating.toFixed(1));
         });
 
+        // Ensure all businesses have valid logos
         res.json(businesses.map(withDefaultLogo));
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to fetch businesses" });

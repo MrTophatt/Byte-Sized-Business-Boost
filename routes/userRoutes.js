@@ -5,6 +5,10 @@ const auth = require("../middleware/auth");
 
 const router = express.Router();
 
+/**
+ * POST /users/generate
+ * Creates a guest user with a random session token.
+ */
 router.post("/generate", async (req, res) => {
     try {
         const token = crypto.randomUUID();
@@ -15,13 +19,17 @@ router.post("/generate", async (req, res) => {
     }
 });
 
+/**
+ * POST /users/logout
+ * Ends the current session.
+ */
 router.post("/logout", auth, async (req, res) => {
     try {
         if (req.user.role === "guest") {
-            // Delete guest session from DB
+            // Remove guest accounts entirely
             await User.deleteOne({ _id: req.user._id });
         } else {
-            // Google user: keep account, just clear token
+            // Invalidate session token for registered users
             req.user.token = null;
             await req.user.save();
         }
@@ -33,10 +41,18 @@ router.post("/logout", auth, async (req, res) => {
     }
 });
 
+/**
+ * GET /users/me
+ * Returns the authenticated user's profile.
+ */
 router.get("/me", auth, async (req, res) => {
     res.json(req.user);
 });
 
+/**
+ * GET /users/favourites
+ * Returns the current user's favourite businesses.
+ */
 router.get("/favourites", auth, async (req, res) => {
     const user = req.user;
 
@@ -48,6 +64,10 @@ router.get("/favourites", auth, async (req, res) => {
     res.json({ favourites: user.favourites }); // array of business IDs␊
 });
 
+/**
+ * GET /users/:id
+ * Returns a specified authenticated user's profile.
+ */
 router.get("/:id", auth, async (req, res) => {
     try {
         const targetUser = await User.findById(req.params.id).lean();
