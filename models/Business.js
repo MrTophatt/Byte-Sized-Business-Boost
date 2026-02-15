@@ -210,8 +210,7 @@ const businessSchema = new mongoose.Schema({
     },
 
     logoImageUrl: {
-        type: String,
-        default: "/images/defaultBusiness.png"
+        type: String
     }
 });
 

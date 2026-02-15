@@ -9,11 +9,79 @@
 const { app, BrowserWindow, dialog } = require("electron");
 const PATH = require("path");
 const WEB_APP = require("../server"); // Import the Express app / server bootstrap logic
+
+const APP_PROTOCOL = "bytesizedbusinessboost";
+const APP_HOST = "localhost";
+const APP_PORT = process.env.PORT || 3000;
+
 let mainWindow; // Reference to the main Electron window instance
+let appOrigin = null;
+let pendingBusinessId = null;
 
 // Reference to the running HTTP server instance
 // Used so it can be cleanly shut down later
 let runningServer;
+
+/**
+ * Registers OS protocol handler for deep links.
+ * In development, Electron needs extra argv metadata.
+ */
+function registerProtocolClient() {
+    if (process.defaultApp && process.argv[1]) {
+        return app.setAsDefaultProtocolClient(
+            APP_PROTOCOL,
+            process.execPath,
+            [PATH.resolve(process.argv[1])]
+        );
+    }
+
+    return app.setAsDefaultProtocolClient(APP_PROTOCOL);
+}
+
+function getBusinessIdFromDeepLink(urlString = "") {
+    try {
+        const url = new URL(urlString);
+
+        if (url.protocol !== `${APP_PROTOCOL}:`) {
+            return null;
+        }
+
+        const pathParts = url.pathname.split("/").filter(Boolean);
+
+        // Supports:
+        // - bytesizedbusinessboost://business/<id>
+        // - bytesizedbusinessboost:///business/<id>
+        if (url.hostname === "business" && pathParts.length >= 1) {
+            return pathParts[0];
+        }
+
+        if (pathParts[0] === "business" && pathParts[1]) {
+            return pathParts[1];
+        }
+
+        if (url.hostname === "business" && url.searchParams.get("id")) {
+            return url.searchParams.get("id");
+        }
+
+        return null;
+    } catch (_error) {
+        return null;
+    }
+}
+
+function openBusinessFromDeepLink(urlString = "") {
+    const businessId = getBusinessIdFromDeepLink(urlString);
+    if (!businessId) return;
+
+    const targetUrl = `${appOrigin || `http://${APP_HOST}:${APP_PORT}`}/business/${businessId}`;
+
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.loadURL(targetUrl);
+        return;
+    }
+
+    pendingBusinessId = businessId;
+}
 
 /**
  * Creates the Electron browser window and boots the API server.
@@ -21,17 +89,15 @@ let runningServer;
  */
 async function createWindow() {
     // Fallback port if PORT is not defined in the environment
-    const port = process.env.PORT || 3000;
+    const port = APP_PORT;
 
     // Host the server locally
-    const host = "localhost";
-
-    // Base URL the Electron window will load
-    const origin = `http://${host}:${port}`;
+    const host = APP_HOST;
 
     try {
         // Start the Express server and store a reference to it
         runningServer = await WEB_APP.startServer({ port, host });
+        appOrigin = `http://${host}:${runningServer.port || port}`;
 
         // Create the Electron browser window
         mainWindow = new BrowserWindow({
@@ -52,7 +118,12 @@ async function createWindow() {
         // Delay loading the URL slightly to ensure the server is fully listening
         // This prevents race conditions in production builds
         setTimeout(() => {
-            mainWindow.loadURL(origin);
+            const targetUrl = pendingBusinessId
+                ? `${appOrigin}/business/${pendingBusinessId}`
+                : appOrigin;
+
+            pendingBusinessId = null;
+            mainWindow.loadURL(targetUrl);
         }, 500);
 
     } catch (err) {
@@ -75,8 +146,44 @@ async function shutdownServer() {
     }
 }
 
+// Ensure only one desktop instance handles deep links.
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+
+if (!hasSingleInstanceLock) {
+    app.quit();
+}
+
+app.on("open-url", (event, url) => {
+    event.preventDefault();
+    openBusinessFromDeepLink(url);
+});
+
+app.on("second-instance", (_event, argv) => {
+    const deepLinkArg = argv.find((arg) => arg.startsWith(`${APP_PROTOCOL}://`));
+
+    if (deepLinkArg) {
+        openBusinessFromDeepLink(deepLinkArg);
+    }
+
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+
+        mainWindow.focus();
+    }
+});
+
 // Fired once Electron has finished initialization
 app.whenReady().then(async () => {
+    registerProtocolClient();
+    
+    const deepLinkArg = process.argv.find((arg) => arg.startsWith(`${APP_PROTOCOL}://`));
+
+    if (deepLinkArg) {
+        openBusinessFromDeepLink(deepLinkArg);
+    }
+
     try {
         // Create the main window and start the server
         await createWindow();

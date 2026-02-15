@@ -68,37 +68,40 @@
         if (!shareButton) return;
 
         shareButton.onclick = async () => {
-            const encodedUrl = encodeURIComponent(window.location.href);
-            const shareMessage = `${business.name}\n${business.shortDescription || business.description || ""}\nShared from Byte-Sized Business Boost desktop app`;
+            const appShareUrl = `bytesizedbusinessboost://business/${BUSINESS_ID}`;
 
             if (navigator.share) {
                 try {
-                    await navigator.share({ title: business.name, text: shareMessage, url: window.location.href });
+                    await navigator.share({
+                        title: business.name,
+                        text: `Open ${business.name} in Byte-Sized Business Boost`,
+                        url: appShareUrl
+                    });
                     return;
                 } catch (error) {
-                    console.warn("Native share cancelled", error);
+                    console.warn("Native share unavailable; falling back to copy", error);
                 }
             }
 
-            const encodedText = encodeURIComponent(shareMessage);
-            const selectedOption = window.prompt("Type option: copy, email, x", "copy");
+            try {
+                if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(appShareUrl);
+                } else {
+                    const fallbackTextArea = document.createElement("textarea");
+                    fallbackTextArea.value = appShareUrl;
+                    fallbackTextArea.setAttribute("readonly", "");
+                    fallbackTextArea.style.position = "fixed";
+                    fallbackTextArea.style.opacity = "0";
+                    document.body.appendChild(fallbackTextArea);
+                    fallbackTextArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(fallbackTextArea);
+                }
 
-            if (!selectedOption) return;
-            const shareChoice = selectedOption.toLowerCase();
-
-            if (shareChoice === "copy") {
-                await navigator.clipboard.writeText(shareMessage);
-                alert("Business details copied to clipboard");
-                return;
-            }
-
-            if (shareChoice === "email") {
-                window.location.href = `mailto:?subject=${encodeURIComponent(`Check out ${business.name}`)}&body=${encodedText}`;
-                return;
-            }
-
-            if (shareChoice === "x") {
-                window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, "_blank");
+                alert("Business app link copied to clipboard.");
+            } catch (error) {
+                console.error("Copy failed", error);
+                alert(`Copy failed. Share this link manually: ${appShareUrl}`);
             }
         };
     }

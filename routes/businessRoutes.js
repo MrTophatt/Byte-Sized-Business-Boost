@@ -191,7 +191,7 @@ router.get("/:id", async (req, res) => {
 
         business.favouritesCount = favouritesCount;
 
-        res.json(businesses.map(withDefaultLogo));
+        res.json(withDefaultLogo(business));
     } catch (err) {
         console.error(err);
         res.status(400).json({ error: "Invalid business ID" });
