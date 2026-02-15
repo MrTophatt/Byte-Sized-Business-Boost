@@ -135,10 +135,10 @@ async function loadBusinesses() {
         }
 
         // If included categories exist:
-        // The business must match AT LEAST ONE included category
+        // The business must match ALL included categories
         if (includedCategories.size > 0) {
-            return categories.some(category =>
-                includedCategories.has(category)
+            return Array.from(includedCategories).every((includedCategory) =>
+                categories.includes(includedCategory)
             );
         }
 

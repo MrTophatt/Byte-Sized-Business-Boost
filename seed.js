@@ -20,7 +20,7 @@ const BUSINESS_SEED_DATA = [
         shortDescription: "A cozy local café for handcrafted coffee and pastries.",
         longDescription: "Maple Leaf Café is a neighborhood coffee shop known for small-batch brews, fresh pastries, and a calm space for students, remote workers, and weekend catch-ups.",
         description: "A cozy local café for handcrafted coffee and pastries.",
-        categories: ["food", "cafe"],
+        categories: ["food", "cafe", "services"],
         ownerName: "Avery Thompson",
         contactPhone: "(416) 555-0101",
         contactEmail: "hello@mapleleafcafe.ca",
@@ -51,7 +51,7 @@ const BUSINESS_SEED_DATA = [
         shortDescription: "Community-focused gym with classes and personal training.",
         longDescription: "Northside Fitness provides strength and cardio training, group classes, and one-on-one coaching with flexible memberships and beginner-friendly support.",
         description: "Community-focused gym with classes and personal training.",
-        categories: ["fitness", "health"],
+        categories: ["fitness", "health", "services"],
         ownerName: "Jordan Patel",
         contactPhone: "(416) 555-0120",
         contactEmail: "team@northsidefitness.ca",
@@ -83,7 +83,7 @@ const BUSINESS_SEED_DATA = [
         shortDescription: "Fast phone and laptop diagnostics and repairs.",
         longDescription: "TechNest Repairs helps residents and students with same-day diagnostics, screen and battery replacements, data recovery, and maintenance for common device issues.",
         description: "Fast phone and laptop diagnostics and repairs.",
-        categories: ["technology", "services"],
+        categories: ["technology", "services", "education"],
         ownerName: "Chris Nguyen",
         contactPhone: "(416) 555-0145",
         contactEmail: "support@technestrepairs.ca",
@@ -125,7 +125,7 @@ const BUSINESS_SEED_DATA = [
         shortDescription: "Handmade clothing and accessories from local makers.",
         longDescription: "Downtown Boutique curates apparel, jewelry, and seasonal collections from independent creators, with new drops and limited runs released throughout the month.",
         description: "Handmade clothing and accessories from local makers.",
-        categories: ["retail"],
+        categories: ["retail", "services", "entertainment"],
         ownerName: "Mila Rossi",
         contactPhone: "(416) 555-0166",
         contactEmail: "shop@downtownboutique.ca",
@@ -140,6 +140,153 @@ const BUSINESS_SEED_DATA = [
         },
         bannerImageUrl: "./images/businesses/banners/downtown-boutique-banner.svg",
         logoImageUrl: "/images/businesses/logos/downtown-boutique-logo.svg"
+    },
+    {
+        name: "Neon Arcade & VR",
+        shortDescription: "Retro arcades, VR rooms, and weekend tournaments.",
+        longDescription: "Neon Arcade & VR blends classic cabinets with modern VR pods, offering birthday packages, esports ladders, and community game nights.",
+        description: "Retro arcades, VR rooms, and weekend tournaments.",
+        categories: ["entertainment", "technology", "services"],
+        ownerName: "Diego Alvarez",
+        contactPhone: "(416) 555-0202",
+        contactEmail: "play@neonarcadevr.ca",
+        websiteUrl: "https://neonarcadevr.ca",
+        address: "14 Carlton St, Toronto, ON",
+        timetable: {
+            monday: { opensAt: "14:00", closesAt: "22:00" },
+            tuesday: { opensAt: "14:00", closesAt: "22:00" },
+            wednesday: { opensAt: "14:00", closesAt: "22:00" },
+            thursday: { opensAt: "14:00", closesAt: "23:00" },
+            friday: { opensAt: "12:00", closesAt: "01:00" },
+            saturday: { opensAt: "10:00", closesAt: "01:00" },
+            sunday: { opensAt: "10:00", closesAt: "21:00" }
+        },
+        deals: [
+            {
+                title: "Two-for-One Tuesday Tokens",
+                description: "Buy one token bundle, get a second bundle free every Tuesday.",
+                startDate: new Date("2026-02-01"),
+                endDate: new Date("2026-12-31"),
+                isActive: true
+            }
+        ],
+    },
+    {
+        name: "Harbor Wellness Clinic",
+        shortDescription: "Physio, massage therapy, and holistic recovery plans.",
+        longDescription: "Harbor Wellness Clinic supports recovery through integrated treatment plans, mobility assessments, and guided rehabilitation for athletes and office workers.",
+        description: "Physio, massage therapy, and holistic recovery plans.",
+        categories: ["health", "services", "fitness"],
+        ownerName: "Priya Menon",
+        contactPhone: "(416) 555-0228",
+        contactEmail: "care@harborwellnessclinic.ca",
+        websiteUrl: "https://harborwellnessclinic.ca",
+        address: "210 Queens Quay W, Toronto, ON",
+        timetable: {
+            monday: { opensAt: "08:00", closesAt: "19:00" },
+            tuesday: { opensAt: "08:00", closesAt: "19:00" },
+            wednesday: { opensAt: "08:00", closesAt: "19:00" },
+            thursday: { opensAt: "08:00", closesAt: "19:00" },
+            friday: { opensAt: "08:00", closesAt: "17:00" },
+            saturday: { opensAt: "09:00", closesAt: "14:00" }
+        },
+        deals: [
+            {
+                title: "First Assessment Package",
+                description: "Initial consultation and mobility screening bundled at 20% off.",
+                startDate: new Date("2026-03-01"),
+                endDate: new Date("2026-09-30"),
+                isActive: true
+            }
+        ],
+    },
+    {
+        name: "Green Fork Meal Prep",
+        shortDescription: "Weekly chef-made meal prep with vegan and high-protein options.",
+        longDescription: "Green Fork Meal Prep delivers rotating menu plans for families, athletes, and busy professionals with flexible pickup windows and custom nutrition plans.",
+        description: "Weekly chef-made meal prep with vegan and high-protein options.",
+        categories: ["food", "health", "services"],
+        ownerName: "Noah Campbell",
+        contactPhone: "(416) 555-0255",
+        contactEmail: "orders@greenforkmeals.ca",
+        websiteUrl: "https://greenforkmeals.ca",
+        address: "77 Roncesvalles Ave, Toronto, ON",
+        timetable: {
+            monday: { opensAt: "09:00", closesAt: "18:00" },
+            tuesday: { opensAt: "09:00", closesAt: "18:00" },
+            wednesday: { opensAt: "09:00", closesAt: "18:00" },
+            thursday: { opensAt: "09:00", closesAt: "18:00" },
+            friday: { opensAt: "09:00", closesAt: "18:00" },
+            sunday: { opensAt: "11:00", closesAt: "16:00" }
+        },
+        deals: [
+            {
+                title: "Family Box Intro",
+                description: "First week family-sized meal box includes 3 free desserts.",
+                startDate: new Date("2026-01-15"),
+                endDate: new Date("2026-12-31"),
+                isActive: true
+            }
+        ],
+    },
+    {
+        name: "Summit Co-Work Studio",
+        shortDescription: "Flexible coworking desks, private pods, and creator workshops.",
+        longDescription: "Summit Co-Work Studio offers focused desk zones, podcast booths, and collaboration lounges for freelancers, startups, and distributed teams.",
+        description: "Flexible coworking desks, private pods, and creator workshops.",
+        categories: ["services", "technology", "education"],
+        ownerName: "Emma Zhao",
+        contactPhone: "(416) 555-0299",
+        contactEmail: "hello@summitcowork.ca",
+        websiteUrl: "https://summitcowork.ca",
+        address: "401 Richmond St W, Toronto, ON",
+        timetable: {
+            monday: { opensAt: "07:00", closesAt: "22:00" },
+            tuesday: { opensAt: "07:00", closesAt: "22:00" },
+            wednesday: { opensAt: "07:00", closesAt: "22:00" },
+            thursday: { opensAt: "07:00", closesAt: "22:00" },
+            friday: { opensAt: "07:00", closesAt: "21:00" },
+            saturday: { opensAt: "09:00", closesAt: "18:00" },
+            sunday: { opensAt: "09:00", closesAt: "16:00" }
+        },
+        deals: [
+            {
+                title: "Night Owl Pass",
+                description: "50% off desk bookings after 6 PM from Monday to Thursday.",
+                startDate: new Date("2026-04-01"),
+                endDate: new Date("2026-10-31"),
+                isActive: true
+            }
+        ],
+    },
+    {
+        name: "Riverstone Learning Hub",
+        shortDescription: "Project-based workshops for robotics, design, and entrepreneurship.",
+        longDescription: "Riverstone Learning Hub runs evening and weekend cohorts where learners build real projects in robotics, UX design, and startup fundamentals.",
+        description: "Project-based workshops for robotics, design, and entrepreneurship.",
+        categories: ["education", "technology"],
+        ownerName: "Fatima El-Sayed",
+        contactPhone: "(416) 555-0311",
+        contactEmail: "admissions@riverstonehub.ca",
+        websiteUrl: "https://riverstonehub.ca",
+        address: "98 Spadina Ave, Toronto, ON",
+        timetable: {
+            tuesday: { opensAt: "13:00", closesAt: "21:00" },
+            wednesday: { opensAt: "13:00", closesAt: "21:00" },
+            thursday: { opensAt: "13:00", closesAt: "21:00" },
+            friday: { opensAt: "13:00", closesAt: "21:00" },
+            saturday: { opensAt: "09:00", closesAt: "17:00" },
+            sunday: { opensAt: "10:00", closesAt: "16:00" }
+        },
+        deals: [
+            {
+                title: "Bootcamp Bundle",
+                description: "Enroll in two weekend bootcamps and save 25% on the second.",
+                startDate: new Date("2026-05-01"),
+                endDate: new Date("2026-12-15"),
+                isActive: true
+            }
+        ],
     }
 ];
 
