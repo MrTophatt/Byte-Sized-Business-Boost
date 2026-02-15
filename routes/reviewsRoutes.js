@@ -92,6 +92,35 @@ router.get("/me", auth, async (req, res) => {
     }
 });
 
+
+/* ================================
+   GET reviews for a specific user
+================================ */
+router.get("/user/:userId", auth, async (req, res) => {
+    try {
+        const reviews = await Review.find({ userId: req.params.userId })
+            .sort({ createdAt: -1 })
+            .populate("businessId", "name")
+            .lean();
+
+        const formattedReviews = reviews.map(review => ({
+            _id: review._id,
+            title: review.title,
+            body: review.body,
+            rating: review.rating,
+            createdAt: review.createdAt,
+            business: review.businessId
+                ? { _id: review.businessId._id, name: review.businessId.name }
+                : null
+        }));
+
+        res.json(formattedReviews);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load user reviews" });
+    }
+});
+
 /* ================================
    GET reviews for a business
 ================================ */

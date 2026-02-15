@@ -7,8 +7,8 @@
  */
 
 const { app, BrowserWindow, dialog } = require("electron");
-const path = require("path");
-const webApp = require("../server"); // Import the Express app / server bootstrap logic
+const PATH = require("path");
+const WEB_APP = require("../server"); // Import the Express app / server bootstrap logic
 let mainWindow; // Reference to the main Electron window instance
 
 // Reference to the running HTTP server instance
@@ -31,7 +31,7 @@ async function createWindow() {
 
     try {
         // Start the Express server and store a reference to it
-        runningServer = await webApp.startServer({ port, host });
+        runningServer = await WEB_APP.startServer({ port, host });
 
         // Create the Electron browser window
         mainWindow = new BrowserWindow({
@@ -39,7 +39,7 @@ async function createWindow() {
             height: 800,
 
             // Explicitly resolve icon path for reliability in production builds
-            icon: path.resolve(__dirname, "..", "assets", "icon.ico"),
+            icon: PATH.resolve(__dirname, "..", "assets", "icon.ico"),
 
             // Harden security by disabling Node.js access in the renderer
             webPreferences: {

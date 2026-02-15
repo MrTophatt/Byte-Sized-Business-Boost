@@ -48,4 +48,28 @@ router.get("/favourites", auth, async (req, res) => {
     res.json({ favourites: user.favourites }); // array of business IDs␊
 });
 
+router.get("/:id", auth, async (req, res) => {
+    try {
+        const targetUser = await User.findById(req.params.id).lean();
+
+        if (!targetUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const viewerIsTarget = String(req.user._id) === String(targetUser._id);
+
+        res.json({
+            _id: targetUser._id,
+            role: targetUser.role,
+            name: targetUser.name,
+            email: viewerIsTarget ? targetUser.email : undefined,
+            avatarUrl: targetUser.avatarUrl,
+            favourites: Array.isArray(targetUser.favourites) ? targetUser.favourites : []
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load user profile" });
+    }
+});
+
 module.exports = router;

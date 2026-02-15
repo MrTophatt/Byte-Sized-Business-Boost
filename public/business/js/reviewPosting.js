@@ -53,6 +53,10 @@ async function loadReviews() {
             const user = review.user || {};
             const avatar = user.avatarUrl || "/images/defaultAvatar.png";
             const username = user.name || "Anonymous";
+            const profileLink = user._id ? `/profile/${user._id}` : null;
+            const usernameMarkup = profileLink
+                ? `<a href="${profileLink}" class="review-user-link">${username}</a>`
+                : username;
 
             const shortBody = review.body.length > REVIEW_PREVIEW_MAX_LENGTH
                 ? review.body.slice(0, REVIEW_PREVIEW_MAX_LENGTH)
@@ -65,7 +69,7 @@ async function loadReviews() {
                 <article class="review-card ${isCurrentUserReview ? "review-card-owner" : ""}">
                     <div class="review-header">
                         <img src="${avatar}" alt="${username}" class="review-avatar">
-                        <strong class="review-user-name">${username}</strong>
+                        <strong class="review-user-name">${usernameMarkup}</strong>
                         <span class="review-rating ms-auto">${renderStars(review.rating)}</span>
                     </div>
 
@@ -154,7 +158,7 @@ async function setupReviewBox(businessId, userToken) {
                     </span>
                 `).join("")}
             </div>
-            
+
             <input class="review-title-input"
                 placeholder="Review title"
                 maxlength="40">

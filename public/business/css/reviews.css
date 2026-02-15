@@ -49,6 +49,16 @@
     font-size: 0.95rem;
 }
 
+.review-user-link {
+    color: #bfdbfe;
+    text-decoration: none;
+}
+
+.review-user-link:hover {
+    color: #dbeafe;
+    text-decoration: underline;
+}
+
 .review-date {
     font-size: 0.8rem;
     color: #94a3b8;

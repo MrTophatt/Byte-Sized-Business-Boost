@@ -19,7 +19,6 @@ module.exports = async function (req, res, next) {
 
     // If no user is found, the session is invalid
     if (!user) {
-        console.log("TEST no user");
         return res.status(401).json({ error: "Invalid session" });
     }
 

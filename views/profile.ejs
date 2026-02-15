@@ -4,10 +4,11 @@
         <title>Profile | Byte-Sized Business Boost</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="css/base.css">
-        <link rel="stylesheet" href="css/layout.css">
-        <link rel="stylesheet" href="css/navbar.css">
-        <link rel="stylesheet" href="css/footer.css">
+        <link rel="stylesheet" href="/profile/css/base.css">
+        <link rel="stylesheet" href="/profile/css/layout.css">
+        <link rel="stylesheet" href="/profile/css/navbar.css">
+        <link rel="stylesheet" href="/profile/css/profileCard.css">
+        <link rel="stylesheet" href="/profile/css/footer.css">
     </head>
     <body>
         <nav class="navbar navbar-main content-container">
@@ -22,29 +23,54 @@
 
                 <div class="d-flex align-items-center gap-3">
                     <span id="roleBadge" class="badge bg-secondary">Guest</span>
-                    <img id="avatar" width="40" height="40" class="rounded-circle">
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-link p-0 border-0 dropdown-toggle"
+                            id="userMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            <img id="avatar" width="40" height="40" class="rounded-circle">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                            <li>
+                                <a id="profileLink" class="dropdown-item" href="/profile">Profile</a>
+                            </li>
+                            <li>
+                                <button id="logoutBtn" class="dropdown-item text-danger" type="button">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Sign Out
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
 
-        <main class="container py-4">
-            <section class="profile-header d-flex align-items-center gap-3 mb-4">
-                <img id="profileAvatar" class="rounded-circle" width="72" height="72" alt="User avatar">
-                <div>
-                    <h1 id="profileName" class="h3 mb-1"></h1>
-                    <p id="profileEmail" class="mb-0"></p>
-                </div>
-            </section>
+        <main class="container py-4 profile-main">
+            <div class="profile-shell">
+                <section class="profile-header-card">
+                    <section class="profile-header">
+                        <img id="profileAvatar" class="rounded-circle" width="88" height="88" alt="User avatar">
+                        <div>
+                            <div id="profileContext" class="profile-context"></div>
+                            <h1 id="profileName" class="h3 mb-1 profile-header-name"></h1>
+                            <p id="profileEmail" class="mb-0 profile-header-email"></p>
+                        </div>
+                    </section>
+                </section>
 
-            <section class="mb-4">
-                <h2 class="h4">Favourite Businesses</h2>
-                <div id="favouritesList" class="list-group"></div>
-            </section>
+                <section class="profile-section-card">
+                    <h2 id="favouritesHeading" class="h4 profile-section-title">Favourite Businesses</h2>
+                    <div id="favouritesList" class="profile-list"></div>
+                </section>
 
-            <section>
-                <h2 class="h4">Your Reviews</h2>
-                <div id="reviewsList" class="list-group"></div>
-            </section>
+                <section class="profile-section-card">
+                    <h2 id="reviewsHeading" class="h4 profile-section-title">Your Reviews</h2>
+                    <div id="reviewsList" class="profile-list"></div>
+                </section>
+            </div>
         </main>
 
         <footer class="site-footer">
@@ -52,7 +78,7 @@
                 <section class="site-footer-brand">
                     <h3 class="site-footer-title">Byte-Sized Business Boost</h3>
                     <p class="site-footer-tagline">Helping communities discover and support local businesses | built for FBLC.</p>
-                    <a class="site-footer-social" href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                    <a class="site-footer-social" href="https://github.com/MrTophatt/Byte-Sized-Business-Boost" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                         <i class="bi bi-github"></i>
                         <span>GitHub</span>
                     </a>
@@ -66,7 +92,7 @@
                     </div>
                     <div class="site-footer-col">
                         <h4>Project</h4>
-                        <a href="https://github.com" target="_blank" rel="noopener noreferrer">Source code</a>
+                        <a href="https://github.com/MrTophatt/Byte-Sized-Business-Boost" target="_blank" rel="noopener noreferrer">Source code</a>
                         <p>Open-source learning project.</p>
                     </div>
                     <div class="site-footer-col">
@@ -77,6 +103,7 @@
             </div>
         </footer>
 
-        <script src="profile.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/profile/profile.js"></script>
     </body>
 </html>

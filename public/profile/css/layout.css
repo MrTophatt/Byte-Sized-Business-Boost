@@ -14,11 +14,6 @@
     padding: 24px 0;
 }
 
-.profile-header img {
-    object-fit: cover;
-    background: #f1f3f5;
-}
-
 .list-group-item small {
     display: block;
     color: #6c757d;

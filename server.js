@@ -58,6 +58,10 @@ app.get("/profile", (req, res) => { // User profile page
     res.render("profile");
 });
 
+app.get("/profile/:id", (req, res) => { // Other user profile pages
+    res.render("profile");
+});
+
 app.get("/business/:id", (req, res) => { // Individual business page
     res.render("business", {
         businessId: req.params.id
