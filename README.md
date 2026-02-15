@@ -110,8 +110,3 @@ npm test
 ├── database.js          # MongoDB connection helpers
 └── seed.js              # Seed script
 ```
-
-## Roadmap ideas
-
-- Deal/offer scheduling and expiration
-- Business timetable to show opening and closing times

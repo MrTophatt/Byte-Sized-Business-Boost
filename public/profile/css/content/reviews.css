@@ -1,0 +1,99 @@
+.profile-review-card {
+    border: 1px solid #334155 !important;
+    background: linear-gradient(180deg, #16243f 0%, #121d33 100%) !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.36);
+}
+
+.profile-review-link-card {
+    text-decoration: none;
+    display: block;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-review-link-card:hover {
+    transform: translateY(-1px);
+    border-color: #4f79b8 !important;
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35), 0 12px 24px rgba(2, 6, 23, 0.42);
+}
+
+.profile-review-business-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.profile-review-business-label {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid #475569;
+    background: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+}
+
+.profile-review-business-name {
+    color: #bfdbfe;
+    font-size: 0.96rem;
+    font-weight: 600;
+}
+
+a.profile-review-business-link:hover {
+    color: #dbeafe;
+    text-decoration: underline;
+}
+
+.profile-review-date {
+    color: #94a3b8;
+    font-size: 0.82rem;
+}
+
+.profile-review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.profile-review-header .profile-card-title {
+    color: #f8fafc;
+}
+
+.profile-review-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #facc15;
+    letter-spacing: 1px;
+}
+
+.profile-review-rating-value {
+    color: #cbd5e1;
+    letter-spacing: normal;
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+.profile-card-body {
+    margin-top: 8px;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+    .profile-review-business-row,
+    .profile-review-header {
+        flex-wrap: wrap;
+    }
+
+    .profile-review-date {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+}

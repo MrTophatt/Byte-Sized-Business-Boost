@@ -1,0 +1,158 @@
+.favourite-business-card {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 16px;
+    text-decoration: none;
+    color: #e5e7eb;
+    background: linear-gradient(120deg, rgba(39, 45, 57, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
+    border: 1px solid #374151;
+    transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+
+.favourite-business-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.32);
+    border-color: #4b5563;
+}
+
+.favourite-business-main {
+    display: flex;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
+}
+
+.favourite-business-image {
+    width: 96px;
+    height: 96px;
+    border-radius: 18px;
+    object-fit: cover;
+    border: 1px solid #4b5563;
+    background: #111827;
+    flex-shrink: 0;
+}
+
+.favourite-business-content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.favourite-business-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.favourite-business-title-row .profile-card-title {
+    font-size: 1.9rem;
+    line-height: 1.15;
+    color: #f8fafc;
+}
+
+.favourite-business-owner {
+    color: #94a3b8;
+    font-size: 1.05rem;
+}
+
+.favourite-business-description {
+    color: #cbd5e1;
+    font-size: 1.08rem;
+    line-height: 1.3;
+}
+
+.favourite-business-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.favourite-business-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #475569;
+    background: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+    font-size: 0.84rem;
+    line-height: 1;
+}
+
+.favourite-business-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.favourite-business-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+}
+
+.favourite-business-stat i {
+    color: #cbd5e1;
+}
+
+.favourite-business-stat span {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+@media (max-width: 900px) {
+    .favourite-business-title-row .profile-card-title {
+        font-size: 1.55rem;
+    }
+
+    .favourite-business-description,
+    .favourite-business-stat {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .favourite-business-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .favourite-business-main {
+        width: 100%;
+    }
+
+    .favourite-business-image {
+        width: 82px;
+        height: 82px;
+    }
+
+    .favourite-business-title-row .profile-card-title {
+        font-size: 1.28rem;
+    }
+
+    .favourite-business-owner,
+    .favourite-business-description {
+        font-size: 0.92rem;
+    }
+
+    .favourite-business-stats {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .favourite-business-stat {
+        font-size: 0.95rem;
+    }
+}

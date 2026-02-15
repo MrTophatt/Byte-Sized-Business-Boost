@@ -62,7 +62,7 @@ async function loadFavourites(favourites = []) {
 async function loadReviews(userId) {
     try {
         const reviews = await fetchReviewsByUser(userId);
-        renderReviews(REVIEWS_LIST_ELEMENT, reviews);
+        renderReviews(REVIEWS_LIST_ELEMENT, Array.isArray(reviews) ? reviews : []);
     } catch (error) {
         console.error(error);
         renderEmptyState(REVIEWS_LIST_ELEMENT, "Unable to load reviews.");

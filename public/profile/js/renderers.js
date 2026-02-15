@@ -80,18 +80,42 @@
             return;
         }
 
+        const toLabel = (value = "") => value.charAt(0).toUpperCase() + value.slice(1);
+
         favouriteBusinesses.forEach((business) => {
+            const categories = (business.categories || []).slice(0, 3);
+            const categoryTagsMarkup = categories
+                .map((category) => `<span class="favourite-business-tag">${toLabel(category)}</span>`)
+                .join("");
+
             const favouriteCardElement = document.createElement("a");
-            favouriteCardElement.className = "profile-card profile-card-link";
+            favouriteCardElement.className = "profile-card profile-card-link favourite-business-card";
             favouriteCardElement.href = `/business/${business._id}`;
             favouriteCardElement.innerHTML = `
-                <div>
-                    <div class="profile-card-title">${business.name}</div>
-                    <small class="profile-card-meta">Popular local business</small>
+                <div class="favourite-business-main">
+                    <img
+                        src="${business.logoImageUrl || "/images/defaultBusiness.png"}"
+                        alt="${business.name} logo"
+                        class="favourite-business-image"
+                        loading="lazy"
+                    >
+                    <div class="favourite-business-content">
+                        <div class="favourite-business-title-row">
+                            <strong class="profile-card-title">${business.name}</strong>
+                            <small class="favourite-business-owner">by ${business.ownerName || "Business owner"}</small>
+                        </div>
+                        <p class="favourite-business-description mb-0">${business.shortDescription || "Popular local business in your community."}</p>
+                        <div class="favourite-business-tags">${categoryTagsMarkup}</div>
+                    </div>
                 </div>
-                <small class="profile-card-rating">
-                    <i class="bi bi-star-fill text-warning"></i> ${business.avgRating} <span>(${business.reviewCount})</span>
-                </small>
+                <div class="favourite-business-stats" aria-label="Business stats">
+                    <small class="favourite-business-stat">
+                        <i class="bi bi-heart"></i> ${business.favouritesCount || 0}
+                    </small>
+                    <small class="favourite-business-stat">
+                        <i class="bi bi-star-fill"></i> ${business.avgRating} <span>(${business.reviewCount})</span>
+                    </small>
+                </div>
             `;
             favouritesListElement.appendChild(favouriteCardElement);
         });
@@ -105,27 +129,51 @@
             return;
         }
 
+        const renderStars = (ratingValue) => {
+            const roundedRating = Math.max(1, Math.min(5, Math.round(Number(ratingValue) || 0)));
+            return '<i class="bi bi-star-fill"></i>'.repeat(roundedRating)
+                + '<i class="bi bi-star"></i>'.repeat(5 - roundedRating);
+        };
+
         reviews.forEach((review) => {
-            const reviewCardElement = document.createElement("article");
-            reviewCardElement.className = "profile-card";
             const businessName = review.business?.name || "Unknown business";
             const businessId = review.business?._id;
-            const businessLinkMarkup = businessId
-                ? `<a href="/business/${businessId}">${businessName}</a>`
-                : businessName;
+            const cardElement = businessId
+                ? document.createElement("a")
+                : document.createElement("article");
 
-            reviewCardElement.innerHTML = `
+            cardElement.className = "profile-card profile-review-card";
+            if (businessId) {
+                cardElement.href = `/business/${businessId}`;
+                cardElement.classList.add("profile-review-link-card");
+            }
+
+            const reviewBody = review.body || "No written comment.";
+            const reviewTitle = review.title || "Review";
+            const ratingValue = Number(review.rating) || 0;
+            const formattedDate = review.createdAt
+                ? new Date(review.createdAt).toLocaleDateString()
+                : "";
+
+            cardElement.innerHTML = `
+                <div class="profile-review-business-row">
+                    <span class="profile-review-business-label">Business</span>
+                    <span class="profile-review-business-name">${businessName}</span>
+                    ${formattedDate ? `<small class="profile-review-date ms-auto">${formattedDate}</small>` : ""}
+                </div>
+
                 <div class="profile-review-header">
-                    <strong class="profile-card-title">${review.title}</strong>
-                    <span class="profile-card-rating">
-                        <i class="bi bi-star-fill text-warning"></i> ${review.rating}
+                    <strong class="profile-card-title">${reviewTitle}</strong>
+                    <span class="profile-review-rating" aria-label="${ratingValue} out of 5 stars">
+                        ${renderStars(ratingValue)}
+                        <span class="profile-review-rating-value">${ratingValue}</span>
                     </span>
                 </div>
-                <small class="profile-card-meta">${businessLinkMarkup}</small>
-                <p class="profile-card-body mb-0">${review.body || "No written comment."}</p>
+
+                <p class="profile-card-body mb-0">${reviewBody}</p>
             `;
 
-            reviewsListElement.appendChild(reviewCardElement);
+            reviewsListElement.appendChild(cardElement);
         });
     }
 

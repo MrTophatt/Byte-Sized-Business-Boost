@@ -7,7 +7,7 @@
         });
 
         if (!response.ok) {
-            throw new Error(`Request failed: ${url}`);
+            throw new Error(`Request failed (${response.status}): ${url}`);
         }
 
         return response.json();
@@ -30,6 +30,10 @@
     }
 
     async function fetchReviewsByUser(userId) {
+        if (!userId) {
+            return fetchWithAuth("/api/reviews/me");
+        }
+
         return fetchWithAuth(`/api/reviews/user/${userId}`);
     }
 
