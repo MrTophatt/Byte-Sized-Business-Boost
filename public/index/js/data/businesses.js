@@ -4,6 +4,40 @@
 const CONTAINER = document.getElementById("businessList"); // Container element where business cards will be rendered
 const SEARCH_INPUT = document.getElementById("searchInput"); // Search input field used to filter businesses by text
 let searchTimeout; // Timeout reference used to debounce search input changes
+let categoryIconByValue = new Map(); // Cache of category value -> icon class for rendering tag icons
+
+function formatCategoryLabel(value = "") {
+    return String(value)
+        .replace(/[\-_]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+async function getCategoryIconMap() {
+    if (categoryIconByValue.size) {
+        return categoryIconByValue;
+    }
+
+    try {
+        const response = await fetch("/api/categories");
+
+        if (!response.ok) {
+            throw new Error("Unable to load categories");
+        }
+
+        const categories = await response.json();
+        categoryIconByValue = new Map(
+            (Array.isArray(categories) ? categories : [])
+                .map((category) => [category.value, category.icon])
+        );
+    } catch (error) {
+        console.error(error);
+        categoryIconByValue = new Map();
+    }
+
+    return categoryIconByValue;
+}
 
 // -----------------------
 // SEARCH INPUT HANDLING
@@ -50,6 +84,7 @@ async function loadBusinesses() {
 
     // Parse the response JSON into an array of business objects
     let businesses = await res.json();
+    const categoryIcons = await getCategoryIconMap();
 
     // -----------------------
     // SEARCH FILTER
@@ -205,7 +240,14 @@ async function loadBusinesses() {
 
                         <div class="business-card-tags">
                             ${business.categories
-                                .map(c => `<span class="business-pill">${c}</span>`)
+                                .map((category) => {
+                                    const iconClass = categoryIcons.get(category);
+                                    const iconMarkup = iconClass
+                                        ? `<i class="bi ${iconClass} business-pill-icon" aria-hidden="true"></i>`
+                                        : "";
+
+                                    return `<span class="business-pill">${iconMarkup}${formatCategoryLabel(category)}</span>`;
+                                })
                                 .join("")}
                         </div>
 

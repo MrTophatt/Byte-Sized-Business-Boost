@@ -97,7 +97,13 @@
     border: 1px solid #5a6478;
     color: #d3d9e4;
     background: #3a4150;
-    text-transform: lowercase;
+    display: inline-flex;
+    align-items: center;
+}
+
+.business-pill-icon {
+    margin-right: 6px;
+    font-size: 0.8rem;
 }
 
 .business-card-stats {

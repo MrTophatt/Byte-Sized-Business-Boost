@@ -10,6 +10,7 @@ const {
     fetchViewer,
     fetchUserById,
     fetchBusinessesByIds,
+    fetchCategories,
     fetchReviewsByUser
 } = window.profileApi;
 
@@ -51,8 +52,12 @@ async function loadFavourites(favourites = []) {
     }
 
     try {
-        const businesses = await fetchBusinessesByIds(favourites);
-        renderFavourites(FAV_LIST_ELEMENTS, businesses);
+        const [businesses, categories] = await Promise.all([
+            fetchBusinessesByIds(favourites),
+            fetchCategories()
+        ]);
+
+        renderFavourites(FAV_LIST_ELEMENTS, businesses, categories);
     } catch (error) {
         console.error(error);
         renderEmptyState(FAV_LIST_ELEMENTS, "Unable to load favourites.");

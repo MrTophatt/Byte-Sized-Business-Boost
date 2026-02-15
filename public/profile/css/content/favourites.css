@@ -82,6 +82,11 @@
     line-height: 1;
 }
 
+.favourite-business-tag-icon {
+    margin-right: 6px;
+    font-size: 0.82rem;
+}
+
 .favourite-business-stats {
     display: flex;
     flex-direction: column;

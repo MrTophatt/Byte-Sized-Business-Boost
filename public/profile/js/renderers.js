@@ -65,7 +65,7 @@
             : `${firstName}'s Reviews`;
     }
 
-    function renderFavourites(favouritesListElement, businesses = []) {
+    function renderFavourites(favouritesListElement, businesses = [], categories = []) {
         favouritesListElement.innerHTML = "";
 
         if (!businesses.length) {
@@ -73,12 +73,26 @@
             return;
         }
 
-        const toLabel = (value = "") => value.charAt(0).toUpperCase() + value.slice(1);
+        const toLabel = (value = "") => String(value)
+            .replace(/[\-_]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+        const categoryIconByValue = new Map(
+            (Array.isArray(categories) ? categories : []).map((category) => [category.value, category.icon])
+        );
 
         businesses.forEach((business) => {
-            const categories = (business.categories || []).slice(0, 3);
-            const categoryTagsMarkup = categories
-                .map((category) => `<span class="favourite-business-tag">${toLabel(category)}</span>`)
+            const favouriteCategories = (business.categories || []).slice(0, 3);
+            const categoryTagsMarkup = favouriteCategories
+                .map((category) => {
+                    const iconClass = categoryIconByValue.get(category);
+                    const iconMarkup = iconClass
+                        ? `<i class="bi ${iconClass} favourite-business-tag-icon" aria-hidden="true"></i>`
+                        : "";
+
+                    return `<span class="favourite-business-tag">${iconMarkup}${toLabel(category)}</span>`;
+                })
                 .join("");
 
             const favouriteCardElement = document.createElement("a");

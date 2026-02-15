@@ -37,6 +37,16 @@
         return response.json();
     }
 
+    async function fetchCategories() {
+        const response = await fetch("/api/categories");
+
+        if (!response.ok) {
+            throw new Error("Unable to load categories");
+        }
+
+        return response.json();
+    }
+
     async function fetchReviewsByUser(userId) {
         if (!userId) {
             return fetchWithAuth("/api/reviews/me");
@@ -49,6 +59,7 @@
         fetchViewer,
         fetchUserById,
         fetchBusinessesByIds,
+        fetchCategories,
         fetchReviewsByUser
     };
 }());
