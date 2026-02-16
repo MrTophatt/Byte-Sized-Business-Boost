@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="205" height="40" viewBox="0 0 205 40" role="img" aria-labelledby="title desc">
+    <title id="title">Byte-Sized Business Boost logo</title>
+    <desc id="desc">A gradient hexagon with a rising bar chart and the initials BSBB.</desc>
+    <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient>
+        <linearGradient id="bars" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#a7f3d0"/>
+            <stop offset="100%" stop-color="#ffffff"/>
+        </linearGradient>
+    </defs>
+
+    <g transform="translate(2 2)">
+        <path d="M18 0 L34 9 V27 L18 36 L2 27 V9 Z" fill="url(#bg)"/>
+        <rect x="9" y="18" width="4" height="9" rx="1" fill="url(#bars)"/>
+        <rect x="16" y="13" width="4" height="14" rx="1" fill="url(#bars)"/>
+        <rect x="23" y="9" width="4" height="18" rx="1" fill="url(#bars)"/>
+        <path d="M8 29 L28 29" stroke="#dbeafe" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+
+    <g fill="#f9fafb" font-family="Inter, Segoe UI, Arial, sans-serif">
+        <text x="44" y="16" font-size="16" font-weight="500" letter-spacing="0.7">BYTE-SIZED</text>
+        <text x="44" y="35" font-size="22" font-weight="700" letter-spacing="0.2">Business Boost</text>
+    </g>
+</svg>

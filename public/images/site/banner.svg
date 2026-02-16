@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="420" viewBox="0 0 1600 420" role="img" aria-labelledby="title desc">
+    <title id="title">Byte-Sized Business Boost banner</title>
+    <desc id="desc">A modern gradient banner with abstract shapes, balanced typography, and the official Byte-Sized Business Boost logo mark.</desc>
+    <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0b1220"/>
+            <stop offset="55%" stop-color="#1d4ed8"/>
+            <stop offset="100%" stop-color="#0f766e"/>
+        </linearGradient>
+        <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.42"/>
+            <stop offset="100%" stop-color="#5eead4" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0f172a" stop-opacity="0.93"/>
+            <stop offset="100%" stop-color="#1e293b" stop-opacity="0.76"/>
+        </linearGradient>
+        <linearGradient id="logoHex" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#14b8a6"/>
+        </linearGradient>
+        <linearGradient id="logoBars" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#a7f3d0"/>
+            <stop offset="100%" stop-color="#ffffff"/>
+        </linearGradient>
+    </defs>
+
+    <rect width="1600" height="420" fill="url(#bg)"/>
+
+    <circle cx="1320" cy="80" r="210" fill="url(#shine)"/>
+    <circle cx="180" cy="390" r="280" fill="#0ea5e9" fill-opacity="0.18"/>
+    <path d="M0 330 C360 240 560 390 840 318 C1070 258 1260 228 1600 292 L1600 420 L0 420 Z" fill="#0b1220" fill-opacity="0.52"/>
+
+    <g transform="translate(120 94)">
+        <rect x="0" y="0" width="760" height="230" rx="22" fill="url(#card)" stroke="#93c5fd" stroke-opacity="0.24"/>
+
+        <g transform="translate(36 34)" fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif">
+            <text x="0" y="0" font-size="40" font-weight="800" letter-spacing="0.7" dominant-baseline="hanging">BYTE-SIZED BUSINESS BOOST</text>
+            <text x="0" y="68" font-size="22" font-weight="600" fill="#bfdbfe">Shop Local. Grow Together.</text>
+            <text x="0" y="120" font-size="40" font-weight="800" letter-spacing="0.3">Discover. Support. Thrive.</text>
+            <text x="0" y="170" font-size="16" fill="#cbd5e1">Helping communities discover outstanding local businesses in one place.</text>
+        </g>
+
+        <g transform="translate(635 53) scale(3.4)">
+            <path d="M18 0 L34 9 V27 L18 36 L2 27 V9 Z" fill="url(#logoHex)"/>
+            <rect x="9" y="18" width="4" height="9" rx="1" fill="url(#logoBars)"/>
+            <rect x="16" y="13" width="4" height="14" rx="1" fill="url(#logoBars)"/>
+            <rect x="23" y="9" width="4" height="18" rx="1" fill="url(#logoBars)"/>
+            <path d="M8 29 L28 29" stroke="#dbeafe" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+    </g>
+</svg>

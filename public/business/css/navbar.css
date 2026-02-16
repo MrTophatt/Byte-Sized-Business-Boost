@@ -14,14 +14,23 @@
 }
 
 .navbar-brand {
-    color: #f9fafb;
-    font-weight: 600;
-    font-size: 1.05rem;
-    letter-spacing: 0.3px;
+    display: block;
+    height: 55px;
+    width: 100%;
 }
 
 .navbar-brand:hover {
-    color: #f9fafb;
+    opacity: 0.95;
+}
+
+.navbar-main a.btn.btn-sm,
+.navbar-main a.btn.btn-sm:hover,
+.navbar-main a.btn.btn-sm:focus,
+.navbar-main a.btn.btn-sm:focus-visible,
+.navbar-main a.btn.btn-sm:active {
+    border: 0;
+    outline: none;
+    box-shadow: none;
 }
 
 .navbar-main .dropdown-toggle::after {
