@@ -84,6 +84,22 @@ a.profile-review-business-link:hover {
     margin-top: 8px;
     color: #cbd5e1;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.profile-review-fade {
+    color: #94a3b8;
+}
+
+.profile-review-see-more {
+    color: #60a5fa;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.profile-review-see-more:hover {
+    color: #93c5fd;
 }
 
 @media (max-width: 700px) {

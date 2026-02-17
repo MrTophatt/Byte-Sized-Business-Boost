@@ -3,6 +3,7 @@ const router = express.Router();
 const Review = require("../models/Review");
 const mongoose = require("mongoose");
 const auth = require("../middleware/auth");
+const { Business } = require("../models/Business");
 
 /* ================================
    POST a review
@@ -13,46 +14,61 @@ router.post("/:businessId", auth, async (req, res) => {
         const { businessId } = req.params;
         const { title, body = "", rating } = req.body;
 
-        // Ensure authenticated user exists
         if (!user) {
             return res.status(401).json({ error: "Unauthorized" });
         }
 
-        // Guests cannot submit reviews
         if (user.role === "guest") {
             return res.status(403).json({ error: "Guest users cannot post reviews" });
         }
 
-        // Validate required fields
-        if (!title || title.trim().length === 0) {
+        if (!mongoose.Types.ObjectId.isValid(businessId)) {
+            return res.status(400).json({ error: "Invalid business ID" });
+        }
+
+        const businessExists = await Business.exists({ _id: businessId });
+        if (!businessExists) {
+            return res.status(404).json({ error: "Business not found" });
+        }
+
+        const normalizedTitle = typeof title === "string" ? title.trim() : "";
+        const normalizedBody = typeof body === "string" ? body.trim() : "";
+        const normalizedRating = Number.parseInt(rating, 10);
+
+        if (!normalizedTitle) {
             return res.status(400).json({ error: "Review title is required" });
         }
 
-        if (!rating || rating < 1 || rating > 5) {
+        if (normalizedTitle.length > 60) {
+            return res.status(400).json({ error: "Review title must be 60 characters or fewer" });
+        }
+
+        if (normalizedBody.length > 1000) {
+            return res.status(400).json({ error: "Review body must be 1000 characters or fewer" });
+        }
+
+        if (!Number.isInteger(normalizedRating) || normalizedRating < 1 || normalizedRating > 5) {
             return res.status(400).json({ error: "Valid rating is required" });
         }
 
-        // Prevent duplicate reviews by the same user
-        const existing = await Review.findOne({ businessId, userId: user._id });
+        const existing = await Review.findOne({ businessId, userId: user._id }).lean();
         if (existing) {
             return res.status(409).json({
                 error: "You have already reviewed this business"
             });
         }
 
-        // Create the review document
         const review = await Review.create({
             businessId,
             userId: user._id,
-            title: title.trim(),
-            body: body.trim(),
-            rating
+            title: normalizedTitle,
+            body: normalizedBody,
+            rating: normalizedRating
         });
 
         res.status(201).json(review);
 
     } catch (err) {
-        // Handle unique index violations explicitly
         if (err.code === 11000) {
             return res.status(409).json({
                 error: "You have already reviewed this business"
@@ -127,6 +143,10 @@ router.get("/user/:userId", auth, async (req, res) => {
 router.get("/:businessId", async (req, res) => {
     try {
         const { businessId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(businessId)) {
+            return res.status(400).json({ error: "Invalid business ID" });
+        }
 
         // Fetch reviews and populate the user info
         const reviews = await Review.find({ businessId })

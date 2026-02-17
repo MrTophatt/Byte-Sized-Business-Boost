@@ -9,7 +9,12 @@ const userSchema = new mongoose.Schema({
      * Session token used for authentication.
      * Generated using UUIDv4 and stored client-side.
      */
-    token: String,
+    token: {
+        type: String,
+        index: true,
+        unique: true,
+        sparse: true
+    },
 
     // User access level
     role: {

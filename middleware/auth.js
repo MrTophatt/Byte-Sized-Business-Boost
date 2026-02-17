@@ -14,6 +14,11 @@ module.exports = async function (req, res, next) {
         return res.status(401).json({ error: "No session" });
     }
 
+    // If token is not a string, or less than 20 characters long, or longer than 128 characters, the session is invalid
+    if (typeof token !== "string" || token.length < 20 || token.length > 128) {
+        return res.status(401).json({ error: "Invalid session" });
+    }
+
     // Attempt to find a user associated with this token
     const user = await User.findOne({ token });
 

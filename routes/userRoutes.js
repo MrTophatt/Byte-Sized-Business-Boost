@@ -12,8 +12,8 @@ const router = express.Router();
 router.post("/generate", async (req, res) => {
     try {
         const token = crypto.randomUUID();
-        const user = await User.create({ token });
-        res.json(user);
+        const user = await User.create({ token, role: "guest" });
+        res.json({ token: user.token, role: user.role, _id: user._id });
     } catch (err) {
         res.status(500).json({ error: "User creation failed" });
     }
@@ -61,7 +61,7 @@ router.get("/favourites", auth, async (req, res) => {
         return res.json({ favourites: [] });
     }
 
-    res.json({ favourites: user.favourites }); // array of business IDs␊
+    res.json({ favourites: user.favourites }); // array of business IDs
 });
 
 /**

@@ -12,6 +12,7 @@ const { connectDB, disconnectDB } = require("../database");
 // Mongoose models used in schema and endpoint tests.
 const User = require("../models/User");
 const { Business } = require("../models/Business");
+const Review = require("../models/Review");
 
 // Read required environment values once at test load time.
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -139,6 +140,81 @@ describe("Byte-Sized Business Boost Tests", function() {
                 .get("/definitely-not-a-real-route");
 
             expect(res.status).to.equal(404);
+        });
+    });
+
+    describe("Review security checks", function() {
+        let business;
+        let guestUser;
+        let memberUser;
+
+        beforeEach(async function() {
+            const suffix = Date.now().toString(36);
+
+            business = await Business.create({
+                name: `Security Test Business ${suffix}`,
+                categories: ["services"]
+            });
+
+            guestUser = await User.create({ token: `guest-token-${suffix}`, role: "guest" });
+            memberUser = await User.create({
+                token: `member-token-${suffix}`,
+                role: "user",
+                googleId: `google-${suffix}`,
+                email: `security-${suffix}@example.com`,
+                name: "Security User"
+            });
+        });
+
+        afterEach(async function() {
+            await Review.deleteMany({ businessId: business._id });
+            await User.deleteMany({ _id: { $in: [guestUser._id, memberUser._id] } });
+            await Business.deleteOne({ _id: business._id });
+        });
+
+        it("Guests cannot post reviews", async function() {
+            const res = await request(app)
+                .post(`/api/reviews/${business._id}`)
+                .set("x-user-token", guestUser.token)
+                .send({ title: "Guest attempt", body: "Should fail", rating: 5 });
+
+            expect(res.status).to.equal(403);
+        });
+
+        it("Enforces one review per user per business", async function() {
+            const payload = { title: "Great place", body: "Nice service", rating: 4 };
+
+            const first = await request(app)
+                .post(`/api/reviews/${business._id}`)
+                .set("x-user-token", memberUser.token)
+                .send(payload);
+
+            const second = await request(app)
+                .post(`/api/reviews/${business._id}`)
+                .set("x-user-token", memberUser.token)
+                .send(payload);
+
+            expect(first.status).to.equal(201);
+            expect(second.status).to.equal(409);
+        });
+
+        it("Rejects review bodies over 1000 characters", async function() {
+            const res = await request(app)
+                .post(`/api/reviews/${business._id}`)
+                .set("x-user-token", memberUser.token)
+                .send({ title: "Long review", body: "x".repeat(1001), rating: 5 });
+
+            expect(res.status).to.equal(400);
+            expect(res.body.error).to.include("1000");
+        });
+
+        it("Rejects invalid business IDs for review posting", async function() {
+            const res = await request(app)
+                .post("/api/reviews/not-a-valid-id")
+                .set("x-user-token", memberUser.token)
+                .send({ title: "Bad business id", body: "Will fail", rating: 5 });
+
+            expect(res.status).to.equal(400);
         });
     });
 });

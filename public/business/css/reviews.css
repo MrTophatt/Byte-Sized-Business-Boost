@@ -69,6 +69,8 @@
     line-height: 1.5;
     color: #cbd5e1;
     margin-top: 6px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .fade-text {
@@ -120,6 +122,40 @@
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+#review-box .review-field-wrap {
+    position: relative;
+    width: 100%;
+}
+
+#review-box .review-title-input.with-counter,
+#review-box textarea.with-counter {
+    padding-right: 62px;
+}
+
+#review-box textarea.with-counter {
+    padding-bottom: 24px;
+}
+
+#review-box .review-counter {
+    position: absolute;
+    right: 10px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    pointer-events: none;
+    background: rgba(11, 18, 36, 0.85);
+    padding: 0 4px;
+    border-radius: 6px;
+}
+
+#review-box .review-title-wrap .review-counter {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#review-box .review-body-wrap .review-counter {
+    bottom: 8px;
 }
 
 #review-box button {

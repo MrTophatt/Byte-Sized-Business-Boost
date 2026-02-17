@@ -34,6 +34,10 @@ router.post("/google", async (req, res) => {
         const payload = ticket.getPayload();
         const { sub: googleId, email, name, picture } = payload;
 
+        if (!googleId || !email || !emailVerified) {
+            return res.status(400).json({ error: "Google login failed" });
+        }
+
         // Attempt to find an existing user with this Google account
         let user = await User.findOne({ googleId });
 
@@ -58,6 +62,11 @@ router.post("/google", async (req, res) => {
         res.json({ token: user.token });
 
     } catch (err) {
+        // Duplicate key conflicts indicate account identity mismatch attempt
+        if (err && err.code === 11000) {
+            return res.status(409).json({ error: "Account conflict detected" });
+        }
+
         // Any verification or database failure is treated as login failure
         console.error(err);
         res.status(400).json({ error: "Google login failed" });

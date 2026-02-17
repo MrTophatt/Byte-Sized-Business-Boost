@@ -23,6 +23,22 @@
         return sectionLabelElement;
     }
 
+    const PROFILE_REVIEW_PREVIEW_MAX_LENGTH = 220;
+
+    function escapeHtml(value = "") {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function formatReviewText(value = "") {
+        return escapeHtml(value).replaceAll("\n", "<br>");
+    }
+
+
     /**
      * Renders the profile header section including:
      * - Avatars
@@ -185,32 +201,71 @@
                 cardElement.classList.add("profile-review-link-card");
             }
 
-            const reviewBody = review.body || "No written comment.";
+            const reviewBody = String(review.body || "No written comment.");
             const reviewTitle = review.title || "Review";
             const ratingValue = Number(review.rating) || 0;
             const formattedDate = review.createdAt
                 ? new Date(review.createdAt).toLocaleDateString()
                 : "";
+            const truncatedBody = reviewBody.slice(0, PROFILE_REVIEW_PREVIEW_MAX_LENGTH);
+            const hasMore = reviewBody.length > PROFILE_REVIEW_PREVIEW_MAX_LENGTH;
+            const encodedFullBody = encodeURIComponent(reviewBody);
+            const encodedShortBody = encodeURIComponent(truncatedBody);
 
             cardElement.innerHTML = `
                 <div class="profile-review-business-row">
                     <span class="profile-review-business-label">Business</span>
-                    <span class="profile-review-business-name">${businessName}</span>
+                    <span class="profile-review-business-name">${escapeHtml(businessName)}</span>
                     ${formattedDate ? `<small class="profile-review-date ms-auto">${formattedDate}</small>` : ""}
                 </div>
 
                 <div class="profile-review-header">
-                    <strong class="profile-card-title">${reviewTitle}</strong>
+                    <strong class="profile-card-title">${escapeHtml(reviewTitle)}</strong>
                     <span class="profile-review-rating" aria-label="${ratingValue} out of 5 stars">
                         ${renderStars(ratingValue)}
                         <span class="profile-review-rating-value">${ratingValue}</span>
                     </span>
                 </div>
 
-                <p class="profile-card-body mb-0">${reviewBody}</p>
+                <p
+                    class="profile-card-body mb-0"
+                    data-expanded="false"
+                    data-full-body="${encodedFullBody}"
+                    data-short-body="${encodedShortBody}"
+                >
+                    <span class="profile-review-body-text">${formatReviewText(hasMore ? truncatedBody : reviewBody)}</span>
+                    ${hasMore ? '<span class="profile-review-fade">... </span><a href="#" class="profile-review-see-more">See more</a>' : ""}
+                </p>
             `;
 
             reviewsListElement.appendChild(cardElement);
+        });
+
+        reviewsListElement.querySelectorAll(".profile-review-see-more").forEach((link) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+
+                const reviewBodyElement = event.target.closest(".profile-card-body");
+                const bodyTextElement = reviewBodyElement?.querySelector(".profile-review-body-text");
+                if (!reviewBodyElement || !bodyTextElement) return;
+
+                const expanded = reviewBodyElement.dataset.expanded === "true";
+                const fullBody = decodeURIComponent(reviewBodyElement.dataset.fullBody || "");
+                const shortBody = decodeURIComponent(reviewBodyElement.dataset.shortBody || "");
+                const fadeElement = reviewBodyElement.querySelector(".profile-review-fade");
+
+                if (expanded) {
+                    bodyTextElement.innerHTML = formatReviewText(shortBody);
+                    if (fadeElement) fadeElement.style.display = "inline";
+                    event.target.textContent = "See more";
+                    reviewBodyElement.dataset.expanded = "false";
+                } else {
+                    bodyTextElement.innerHTML = formatReviewText(fullBody);
+                    if (fadeElement) fadeElement.style.display = "none";
+                    event.target.textContent = "See less";
+                    reviewBodyElement.dataset.expanded = "true";
+                }
+            });
         });
     }
 
