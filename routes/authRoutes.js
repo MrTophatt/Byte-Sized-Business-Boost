@@ -34,7 +34,7 @@ router.post("/google", async (req, res) => {
         const payload = ticket.getPayload();
         const { sub: googleId, email, name, picture } = payload;
 
-        if (!googleId || !email || !emailVerified) {
+        if (!googleId || !email) {
             return res.status(400).json({ error: "Google login failed" });
         }
 
