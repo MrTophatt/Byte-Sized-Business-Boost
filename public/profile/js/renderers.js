@@ -188,8 +188,25 @@
                 + '<i class="bi bi-star"></i>'.repeat(5 - roundedRating);
         };
 
+        const formatBusinessContext = (business = {}) => {
+            const categories = Array.isArray(business.categories)
+                ? business.categories
+                    .map((category) => String(category || "").trim())
+                    .filter(Boolean)
+                    .map((category) => category.charAt(0).toUpperCase() + category.slice(1))
+                : [];
+
+            const primaryCategory = categories[0] || "Local business";
+            const locationHint = String(business.address || "").trim();
+
+            return locationHint
+                ? `${primaryCategory} · ${locationHint}`
+                : primaryCategory;
+        };
+
         reviews.forEach((review) => {
             const businessName = review.business?.name || "Unknown business";
+            const businessContext = formatBusinessContext(review.business);
             const businessId = review.business?._id;
             const cardElement = businessId
                 ? document.createElement("a")
@@ -214,8 +231,8 @@
 
             cardElement.innerHTML = `
                 <div class="profile-review-business-row">
-                    <span class="profile-review-business-label">Business</span>
                     <span class="profile-review-business-name">${escapeHtml(businessName)}</span>
+                    <small class="profile-review-business-context">${escapeHtml(businessContext)}</small>
                     ${formattedDate ? `<small class="profile-review-date ms-auto">${formattedDate}</small>` : ""}
                 </div>
 

@@ -87,7 +87,7 @@ router.get("/me", auth, async (req, res) => {
     try {
         const reviews = await Review.find({ userId: req.user._id })
             .sort({ createdAt: -1 })
-            .populate("businessId", "name")
+            .populate("businessId", "name categories address")
             .lean();
 
         const formattedReviews = reviews.map(review => ({
@@ -97,7 +97,12 @@ router.get("/me", auth, async (req, res) => {
             rating: review.rating,
             createdAt: review.createdAt,
             business: review.businessId
-                ? { _id: review.businessId._id, name: review.businessId.name }
+                ? {
+                    _id: review.businessId._id,
+                    name: review.businessId.name,
+                    categories: review.businessId.categories,
+                    address: review.businessId.address
+                }
                 : null
         }));
 
@@ -116,7 +121,7 @@ router.get("/user/:userId", auth, async (req, res) => {
     try {
         const reviews = await Review.find({ userId: req.params.userId })
             .sort({ createdAt: -1 })
-            .populate("businessId", "name")
+            .populate("businessId", "name categories address")
             .lean();
 
         const formattedReviews = reviews.map(review => ({
@@ -126,7 +131,12 @@ router.get("/user/:userId", auth, async (req, res) => {
             rating: review.rating,
             createdAt: review.createdAt,
             business: review.businessId
-                ? { _id: review.businessId._id, name: review.businessId.name }
+                ? {
+                    _id: review.businessId._id,
+                    name: review.businessId.name,
+                    categories: review.businessId.categories,
+                    address: review.businessId.address
+                }
                 : null
         }));
 

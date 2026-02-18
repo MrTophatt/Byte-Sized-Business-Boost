@@ -24,23 +24,15 @@
     margin-bottom: 10px;
 }
 
-.profile-review-business-label {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    border: 1px solid #475569;
-    background: rgba(148, 163, 184, 0.15);
-    color: #cbd5e1;
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-}
-
 .profile-review-business-name {
     color: #bfdbfe;
     font-size: 0.96rem;
     font-weight: 600;
+}
+
+.profile-review-business-context {
+    color: #94a3b8;
+    font-size: 0.82rem;
 }
 
 a.profile-review-business-link:hover {
