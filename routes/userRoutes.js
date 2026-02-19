@@ -1,6 +1,7 @@
 const express = require("express");
 const crypto = require("crypto");
 const User = require("../models/User");
+const { Types } = require("mongoose");
 const auth = require("../middleware/auth");
 
 const router = express.Router();
@@ -70,6 +71,11 @@ router.get("/favourites", auth, async (req, res) => {
  */
 router.get("/:id", auth, async (req, res) => {
     try {
+        // Return a clean not-found response for invalid user IDs.
+        if (!Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
         const targetUser = await User.findById(req.params.id).lean();
 
         if (!targetUser) {

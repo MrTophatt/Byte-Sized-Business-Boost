@@ -5,9 +5,14 @@
      */
     async function fetchBusiness() {
         const businessResponse = await fetch(`/api/businesses/${BUSINESS_ID}`);
+
         if (!businessResponse.ok) {
-            throw new Error("Failed to fetch business");
+            const errorPayload = await businessResponse.json().catch(() => ({}));
+            const error = new Error(errorPayload.error || "Failed to fetch business");
+            error.status = businessResponse.status;
+            throw error;
         }
+
         return businessResponse.json();
     }
 

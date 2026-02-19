@@ -21,9 +21,13 @@
             }
         });
 
-        // If HTTP status is outside the 200–299 range, treat as failure
+        // If HTTP status is outside the 200–299 range, treat as failure.
+        // Preserve status and API error text for calling code.
         if (!response.ok) {
-            throw new Error(`Request failed (${response.status}): ${url}`);
+            const errorPayload = await response.json().catch(() => ({}));
+            const error = new Error(errorPayload.error || `Request failed (${response.status}): ${url}`);
+            error.status = response.status;
+            throw error;
         }
 
         // Parse and return the JSON response body

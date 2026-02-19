@@ -185,6 +185,11 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     try {
+        // Return 404 for invalid IDs so callers get a consistent not-found response.
+        if (!Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({ error: "Business not found" });
+        }
+
         const business = await Business.findById(req.params.id).lean();
         if (!business) {
             return res.status(404).json({ error: "Business not found" });
@@ -217,7 +222,7 @@ router.get("/:id", async (req, res) => {
         res.json(withDefaultLogo(business));
     } catch (err) {
         console.error(err);
-        res.status(400).json({ error: "Invalid business ID" });
+        res.status(500).json({ error: "Failed to fetch business" });
     }
 });
 

@@ -68,14 +68,26 @@ app.get("/business/:id", (req, res) => { // Individual business page
     });
 });
 
+app.get("/not-found", (req, res) => { // Explicit not-found page with optional custom message
+    const errorMessage = typeof req.query.message === "string" && req.query.message.trim()
+        ? req.query.message.trim()
+        : "We couldn't find that page. It may have been moved or removed.";
+
+    res.status(404).render("404", { errorMessage });
+});
+
+
 app.use((req, res) => { // Fallback 404 handler for any route that was not matched above
     // Keep API responses machine-readable for unmatched API URLs.
-    if (req.originalUrl.startsWith("/api/")) {
+    // Use path matching so `/api` and `/api/...` both return JSON 404.
+    if (req.path === "/api" || req.path.startsWith("/api/")) {
         return res.status(404).json({ error: "Route not found" });
     }
 
     // Render the branded 404 page for browser navigation routes.
-    return res.status(404).render("404");
+    return res.status(404).render("404", {
+        errorMessage: "We couldn't find that page. It may have been moved or removed."
+    });
 });
 
 /**

@@ -75,6 +75,12 @@ async function loadBusiness() {
             await loadReviews();
         }
     } catch (error) {
+        if (error && error.status === 404) {
+            const message = encodeURIComponent(error.message || "Business not found");
+            window.location.href = `/not-found?message=${message}`;
+            return;
+        }
+
         console.error(error);
     }
 }

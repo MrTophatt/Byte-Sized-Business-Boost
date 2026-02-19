@@ -135,7 +135,7 @@ describe("Byte-Sized Business Boost Tests", function() {
         });
 
         // Unknown routes should return a 404 to avoid accidental silent success.
-        it("Unknown page routes should render the custom 404 page", async function() {
+        it("Unknown page routes should render the 404 page", async function() {
             const res = await request(app)
                 .get("/definitely-not-a-real-route");
 
@@ -144,10 +144,48 @@ describe("Byte-Sized Business Boost Tests", function() {
             expect(res.text).to.include("We couldn't find that page.");
         });
 
+        // Invalid business IDs should return not-found JSON instead of cast errors.
+        it("Business API should return 404 for invalid business IDs", async function() {
+            const res = await request(app)
+                .get("/api/businesses/ag");
+
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal("Business not found");
+        });
+
+        // Invalid user profile IDs should resolve to a clean 404 response.
+        it("User profile API should return 404 for invalid user IDs", async function() {
+            const viewer = await User.create({
+                token: `viewer-token-${Date.now()}`,
+                role: "user",
+                googleId: `viewer-google-${Date.now()}`,
+                email: `viewer-${Date.now()}@example.com`,
+                name: "Viewer"
+            });
+
+            const res = await request(app)
+                .get("/api/users/not-an-object-id")
+                .set("x-user-token", viewer.token);
+
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal("User not found");
+
+            await User.deleteOne({ _id: viewer._id });
+        });
+
         // API consumers should receive structured JSON for unknown API URLs.
         it("Unknown API routes should return JSON 404", async function() {
             const res = await request(app)
                 .get("/api/definitely-not-a-real-route");
+
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal("Route not found");
+        });
+
+        // Guard the bare `/api` path too (without a sub-route segment).
+        it("Bare /api path should return JSON 404", async function() {
+            const res = await request(app)
+                .get("/api");
 
             expect(res.status).to.equal(404);
             expect(res.body.error).to.equal("Route not found");

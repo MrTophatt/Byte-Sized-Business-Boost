@@ -63,13 +63,13 @@
             <section class="not-found-card">
                 <img
                     class="error-illustration"
-                    src="/images/site/404-illustration.svg"
+                    src="/images/site/404-banner.svg"
                     alt="Illustration of a magnifying glass over a map pin"
                 >
                 <p class="error-code">404</p>
                 <h1 id="not-found-title">Page not found</h1>
                 <p class="error-description">
-                    Sorry, we couldn’t find that page. It may have been moved or removed.
+                    <%= errorMessage || "We couldn't find that page. It may have been moved or removed." %>
                 </p>
                 <div class="error-actions">
                     <a class="btn btn-primary" href="/">Back to home</a>

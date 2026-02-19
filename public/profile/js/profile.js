@@ -62,7 +62,14 @@ async function loadProfile() {
         ]);
 
     } catch (error) {
-        // Any failure is treated as an authentication or session error
+        // Unknown profiles should show the not-found page with context.
+        if (error && error.status === 404) {
+            const message = encodeURIComponent(error.message || "User not found");
+            window.location.href = `/not-found?message=${message}`;
+            return;
+        }
+
+        // Auth/session failures should send the user back to login.
         console.error(error);
         localStorage.removeItem("userToken");
         window.location.href = "/login";
