@@ -1,0 +1,70 @@
+/* Keep quick links simple and unobtrusive. */
+.quick-links {
+    display: flex;
+    gap: 12px;
+}
+
+.quick-link {
+    color: #d1d5db;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.quick-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* Center the 404 content while preserving site spacing rhythm. */
+.not-found-wrap {
+    padding-top: 44px;
+    padding-bottom: 44px;
+    display: flex;
+    justify-content: center;
+}
+
+.not-found-card {
+    width: min(560px, 100%);
+    text-align: center;
+    background-color: #111827;
+    border: 1px solid #243244;
+    border-radius: 14px;
+    padding: 30px 24px;
+}
+
+.error-illustration {
+    width: min(220px, 65vw);
+    margin-bottom: 10px;
+}
+
+.error-code {
+    margin: 0;
+    color: #60a5fa;
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.error-description {
+    color: #c7d2fe;
+    margin: 10px auto 0;
+    max-width: 44ch;
+}
+
+/* Keep action buttons aligned and wrapping cleanly on smaller screens. */
+.error-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+    .quick-links {
+        gap: 8px;
+    }
+
+    .quick-link {
+        font-size: 0.92rem;
+    }
+}

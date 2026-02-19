@@ -135,11 +135,22 @@ describe("Byte-Sized Business Boost Tests", function() {
         });
 
         // Unknown routes should return a 404 to avoid accidental silent success.
-        it("Unknown routes should return 404", async function() {
+        it("Unknown page routes should render the custom 404 page", async function() {
             const res = await request(app)
                 .get("/definitely-not-a-real-route");
 
             expect(res.status).to.equal(404);
+            expect(res.text).to.include("Page Not Found | Byte-Sized Business Boost");
+            expect(res.text).to.include("We couldn't find that page.");
+        });
+
+        // API consumers should receive structured JSON for unknown API URLs.
+        it("Unknown API routes should return JSON 404", async function() {
+            const res = await request(app)
+                .get("/api/definitely-not-a-real-route");
+
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal("Route not found");
         });
     });
 

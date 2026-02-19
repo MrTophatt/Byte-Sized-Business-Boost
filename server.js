@@ -68,6 +68,16 @@ app.get("/business/:id", (req, res) => { // Individual business page
     });
 });
 
+app.use((req, res) => { // Fallback 404 handler for any route that was not matched above
+    // Keep API responses machine-readable for unmatched API URLs.
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(404).json({ error: "Route not found" });
+    }
+
+    // Render the branded 404 page for browser navigation routes.
+    return res.status(404).render("404");
+});
+
 /**
  * Starts the HTTP server after connecting to the database.
  *
