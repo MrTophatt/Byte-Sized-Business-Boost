@@ -127,6 +127,49 @@ describe("Byte-Sized Business Boost Tests", function() {
             expect(res.text).to.include("Create your account");
             expect(res.text).to.include("verificationModal");
         });
+        it("Email signups get a random default avatar", async function() {
+            const suffix = Date.now().toString(36);
+            const username = `signup-${suffix}`;
+            const email = `${username}@example.com`;
+            const password = "Password123";
+
+            const start = await request(app)
+                .post("/api/auth/signup/start")
+                .send({ username, email, password });
+
+            expect(start.status).to.equal(200);
+            expect(start.body.devVerificationCode).to.be.a("string");
+
+            const verify = await request(app)
+                .post("/api/auth/signup/verify")
+                .send({ email, code: start.body.devVerificationCode });
+
+            expect(verify.status).to.equal(200);
+            expect(verify.body.token).to.be.a("string");
+
+            const created = await User.findOne({ email }).lean();
+            expect(created).to.exist;
+            expect(created.role).to.equal("user");
+            expect(created.avatarUrl).to.match(/^\/images\/default-avatars\/default-avatar-[1-3]\.svg$/);
+
+            await User.deleteOne({ _id: created._id });
+        });
+
+        it("Generated guest users do not get a profile picture", async function() {
+            const res = await request(app)
+                .post("/api/users/generate")
+                .send();
+
+            expect(res.status).to.equal(200);
+
+            const guest = await User.findOne({ token: res.body.token }).lean();
+            expect(guest).to.exist;
+            expect(guest.role).to.equal("guest");
+            expect(guest.avatarUrl).to.not.exist;
+
+            await User.deleteOne({ _id: guest._id });
+        });
+
 
         // Profile route may first redirect because `express.static` sees `/public/profile`.
         // Follow one redirect to assert the final rendered profile page response.

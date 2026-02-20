@@ -11,13 +11,25 @@ Byte-Sized Business Boost is a community-focused web app that helps people disco
 
 ## Features
 
-- Google Sign-In for returning users plus guest session support
+- **Multi-mode authentication:**
+  - Email/password signup with verification code flow
+  - Google Sign-In for OAuth login
+  - Guest session support for quick access
 - Browse local businesses with categories, ratings, deals, and favourite counts
 - Favourite businesses and manage your favourites list (registered users)
 - Create and read one review per user, per business
 - Dedicated profile pages for your account and other users
 - Branded 404 page for missing routes and JSON 404 responses for unknown API routes
 - Responsive UI with polished interactions
+
+## Avatar behavior
+
+- **Email/password signups:** receive a randomly selected default avatar from:
+  - `/images/default-avatars/default-avatar-1.svg`
+  - `/images/default-avatars/default-avatar-2.svg`
+  - `/images/default-avatars/default-avatar-3.svg`
+- **Google login users:** do **not** receive an app-assigned default avatar (`avatarUrl` remains `null`).
+- **Guest users:** do **not** store `avatarUrl`; client fallback uses `/images/defaultAvatar.svg`.
 
 ## Design inspiration and UI toolkit
 
@@ -30,7 +42,7 @@ Byte-Sized Business Boost is a community-focused web app that helps people disco
 - **Frontend:** HTML, CSS, JavaScript
 - **Backend:** Node.js, Express, EJS templates
 - **Database:** MongoDB with Mongoose
-- **Authentication:** Google OAuth (ID token verification) + UUID guest sessions
+- **Authentication:** Email/password + verification code, Google OAuth (ID token verification), UUID token sessions
 - **Desktop packaging:** Electron + electron-builder
 - **Testing:** Mocha, Chai, Supertest
 
@@ -38,7 +50,10 @@ Byte-Sized Business Boost is a community-focused web app that helps people disco
 
 - **Express API + EJS pages:** EJS renders the login, profile, business, and 404 pages; the rest of the experience uses JSON APIs.
 - **Data models:** Businesses, users, and reviews are stored in MongoDB. Reviews are limited to one per user per business.
-- **Authentication:** Guests receive a UUID token; Google users authenticate via ID token verification and receive a session token stored in MongoDB.
+- **Authentication model:**
+  - Guests receive UUID tokens with a 24-hour lifetime and are auto-cleaned by MongoDB TTL.
+  - Registered users receive UUID session tokens with expiry.
+  - Email signups are completed only after verification code confirmation.
 - **Route behavior:** Unknown API routes return JSON `{ error: "Route not found" }`, while unknown browser routes render the custom 404 page.
 
 ## API overview
@@ -47,7 +62,10 @@ All API routes are prefixed with `/api`.
 Routes marked with **(auth)** require the `x-user-token` header.
 
 - **Auth**
-  - `POST /api/auth/google` - Log in with Google (expects `{ token }`)
+  - `POST /api/auth/signup/start` - Begin email signup (expects `{ username, email, password }`)
+  - `POST /api/auth/signup/verify` - Complete email signup (expects `{ email, code }`)
+  - `POST /api/auth/login` - Login with username/email + password (expects `{ identity, password }`)
+  - `POST /api/auth/google` - Login with Google (expects `{ token }`)
 
 - **Users**
   - `POST /api/users/generate` - Create a guest session
@@ -90,7 +108,8 @@ Routes marked with **(auth)** require the `x-user-token` header.
 
 - Node.js 18+
 - MongoDB (local instance or hosted)
-- Google OAuth Client ID
+- Google OAuth Client ID (for Google Sign-In)
+- Gmail account + app password (for email verification in non-test environments)
 
 ### Environment variables
 
@@ -100,6 +119,13 @@ Create a `.env` file in the project root:
 PORT=3000
 MONGODB_URI=your_mongodb_uri
 GOOGLE_CLIENT_ID=your_google_client_id
+
+# Required for email verification in signup flow
+GMAIL_USER=your_gmail_address
+GMAIL_APP_PASSWORD=your_gmail_app_password
+# Optional
+GMAIL_FROM=optional_from_address
+SMTP_TIMEOUT_MS=10000
 ```
 
 ### Install and run web app
@@ -138,6 +164,8 @@ Build artifacts are written to `release/`.
 ```bash
 npm run test
 ```
+
+> Note: tests require a reachable MongoDB instance configured via environment variables.
 
 ## Project structure
 

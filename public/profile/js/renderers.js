@@ -292,5 +292,4 @@
         renderReviews,
         renderEmptyState
     };
-    console.log(window.profileRenderers)
 }());

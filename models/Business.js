@@ -206,7 +206,7 @@ const businessSchema = new mongoose.Schema({
     // Images used in cards and detail views
     bannerImageUrl: {
         type: String,
-        default: "/images/businesses/default-business-banner.svg"
+        default: "/images/businesses/banners/default-business-banner.svg"
     },
 
     logoImageUrl: {

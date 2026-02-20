@@ -36,7 +36,7 @@ async function loadUser() {
     const badge = document.getElementById("roleBadge");
 
     if (user.role === "guest") {
-        avatar.src = "/images/defaultAvatar.png";
+        avatar.src = "/images/default-avatars/default-guest.svg";
         avatar.style.filter = `hue-rotate(${getHueFromToken(userToken)}deg) saturate(20)`;
         badge.style.display = "inline-block";
     } else {

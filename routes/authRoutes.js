@@ -12,6 +12,11 @@ const crypto = require("crypto");
 
 const USER_SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 const SIGNUP_CODE_TTL_MS = 10 * 60 * 1000;
+const DEFAULT_SIGNUP_AVATARS = [
+    "/images/default-avatars/default-avatar-1.svg",
+    "/images/default-avatars/default-avatar-2.svg",
+    "/images/default-avatars/default-avatar-3.svg"
+];
 
 // Initialize Google OAuth client with the configured client ID
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -38,6 +43,11 @@ function verifyPassword(password, storedHash) {
     const candidate = crypto.pbkdf2Sync(password, salt, 100000, 64, "sha512").toString("hex");
 
     return crypto.timingSafeEqual(Buffer.from(digest, "hex"), Buffer.from(candidate, "hex"));
+}
+
+function getRandomDefaultSignupAvatar() {
+    const index = crypto.randomInt(DEFAULT_SIGNUP_AVATARS.length);
+    return DEFAULT_SIGNUP_AVATARS[index];
 }
 
 function gmailIsConfigured() {
@@ -175,6 +185,7 @@ router.post("/signup/verify", async (req, res) => {
             passwordHash: pending.passwordHash,
             role: "user",
             name: pending.username,
+            avatarUrl: getRandomDefaultSignupAvatar(),
             token: nextToken,
             tokenExpiresAt: nextTokenExpiry,
             guestExpiresAt: null
@@ -249,7 +260,7 @@ router.post("/google", async (req, res) => {
 
         // Extract user information from the verified token
         const payload = ticket.getPayload();
-        const { sub: googleId, email, name, picture } = payload;
+        const { sub: googleId, email, name } = payload;
 
         if (!googleId || !email) {
             return res.status(400).json({ error: "Google login failed" });
@@ -273,9 +284,9 @@ router.post("/google", async (req, res) => {
                 email: normalizedEmail,
                 name,
                 role: "user",
+                avatarUrl: null,
                 token: nextToken,
                 tokenExpiresAt: nextTokenExpiry,
-                avatarUrl: picture,
                 guestExpiresAt: null
             });
         } else {
@@ -284,7 +295,7 @@ router.post("/google", async (req, res) => {
             user.googleId = user.googleId || googleId;
             user.email = user.email || normalizedEmail;
             user.name = user.name || name;
-            user.avatarUrl = picture;
+            user.avatarUrl = null;
             user.token = nextToken;
             user.tokenExpiresAt = nextTokenExpiry;
             user.guestExpiresAt = null;

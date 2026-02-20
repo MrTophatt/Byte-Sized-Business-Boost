@@ -1,4 +1,4 @@
-const DEFAULT_AVATAR_URL = "/images/defaultAvatar.png";
+const DEFAULT_AVATAR_URL = "/images/default-avatars/default-guest.svg";
 const GUEST_ROLE = "guest";
 const PROFILE_PATH_SEGMENT = "profile";
 

@@ -1,6 +1,3 @@
-// Retrieve the user authentication token from localStorage
-const USER_TOKEN = localStorage.getItem("userToken");
-
 // DOM containers used for rendering profile sections
 const FAV_LIST_ELEMENTS = document.getElementById("favouritesList");
 const REVIEWS_LIST_ELEMENT = document.getElementById("reviewsList");
@@ -70,7 +67,6 @@ async function loadProfile() {
         }
 
         // Auth/session failures should send the user back to login.
-        console.error(error);
         localStorage.removeItem("userToken");
         window.location.href = "/login";
     }
@@ -99,7 +95,6 @@ async function loadFavourites(favourites = []) {
         renderFavourites(FAV_LIST_ELEMENTS, businesses, categories);
 
     } catch (error) {
-        console.error(error);
         renderEmptyState(FAV_LIST_ELEMENTS, "Unable to load favourites.");
     }
 }
@@ -120,7 +115,6 @@ async function loadReviews(userId) {
         );
 
     } catch (error) {
-        console.error(error);
         renderEmptyState(REVIEWS_LIST_ELEMENT, "Unable to load reviews.");
     }
 }
