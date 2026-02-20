@@ -11,9 +11,7 @@ const userSchema = new mongoose.Schema({
      */
     token: {
         type: String,
-        index: true,
-        unique: true,
-        sparse: true
+        default: null
     },
 
     /**
@@ -21,8 +19,7 @@ const userSchema = new mongoose.Schema({
      */
     tokenExpiresAt: {
         type: Date,
-        default: null,
-        index: true
+        default: null
     },
 
     // User access level
@@ -78,6 +75,14 @@ const userSchema = new mongoose.Schema({
 });
 
 // Only guest accounts should be automatically deleted by TTL.
+userSchema.index(
+    { token: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { token: { $type: "string" } }
+    }
+);
+
 userSchema.index(
     { guestExpiresAt: 1 },
     {

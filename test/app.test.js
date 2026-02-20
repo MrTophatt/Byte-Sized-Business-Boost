@@ -376,4 +376,54 @@ describe("Byte-Sized Business Boost Tests", function() {
             expect(reloaded).to.equal(null);
         });
     });
+describe("Logout token invalidation checks", function() {
+        it("Allows multiple registered users to log out with null tokens", async function() {
+            const suffix = Date.now().toString(36);
+            const firstUser = await User.create({
+                token: `logout-user-1-${suffix}-1234567890`,
+                role: "user",
+                googleId: `logout-google-1-${suffix}`,
+                email: `logout-1-${suffix}@example.com`,
+                name: "Logout User 1",
+                tokenExpiresAt: oneWeekFromNow()
+            });
+
+            const secondUser = await User.create({
+                token: `logout-user-2-${suffix}-1234567890`,
+                role: "user",
+                googleId: `logout-google-2-${suffix}`,
+                email: `logout-2-${suffix}@example.com`,
+                name: "Logout User 2",
+                tokenExpiresAt: oneWeekFromNow()
+            });
+
+            const firstLogout = await request(app)
+                .post("/api/users/logout")
+                .set("x-user-token", firstUser.token)
+                .send();
+
+            const secondLogout = await request(app)
+                .post("/api/users/logout")
+                .set("x-user-token", secondUser.token)
+                .send();
+
+            expect(firstLogout.status).to.equal(200);
+            expect(secondLogout.status).to.equal(200);
+
+            const [reloadedFirst, reloadedSecond] = await Promise.all([
+                User.findById(firstUser._id).lean(),
+                User.findById(secondUser._id).lean()
+            ]);
+
+            expect(reloadedFirst).to.exist;
+            expect(reloadedSecond).to.exist;
+            expect(reloadedFirst.token).to.equal(null);
+            expect(reloadedSecond.token).to.equal(null);
+            expect(reloadedFirst.tokenExpiresAt).to.equal(null);
+            expect(reloadedSecond.tokenExpiresAt).to.equal(null);
+
+            await User.deleteMany({ _id: { $in: [firstUser._id, secondUser._id] } });
+        });
+    });
+
 });
