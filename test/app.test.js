@@ -1,4 +1,5 @@
 require("dotenv").config();
+process.env.NODE_ENV = "test";
 const mongoose = require("mongoose");
 const { expect } = require("chai");
 const request = require("supertest");
@@ -116,6 +117,15 @@ describe("Byte-Sized Business Boost Tests", function() {
             expect(res.status).to.equal(200);
             expect(res.text).to.include("g_id_onload");
             expect(res.text).to.include("Continue as Guest");
+        });
+
+        it("Signup page should be reachable", async function() {
+            const res = await request(app)
+                .get("/signup");
+
+            expect(res.status).to.equal(200);
+            expect(res.text).to.include("Create your account");
+            expect(res.text).to.include("verificationModal");
         });
 
         // Profile route may first redirect because `express.static` sees `/public/profile`.

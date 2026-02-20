@@ -34,7 +34,21 @@ const userSchema = new mongoose.Schema({
 
     // OAuth / account information
     googleId: String,
-    email: String,
+    username: {
+        type: String,
+        unique: true,
+        sparse: true,
+        lowercase: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        unique: true,
+        sparse: true,
+        lowercase: true,
+        trim: true
+    },
+    passwordHash: String,
     name: String,
     avatarUrl: String,
 

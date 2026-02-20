@@ -54,6 +54,10 @@ app.get("/login", (req, res) => { // Login page (injects OAuth client ID)
     });
 });
 
+app.get("/signup", (req, res) => { // Signup page
+    res.render("signup");
+});
+
 app.get("/profile", (req, res) => { // User profile page
     res.render("profile");
 });

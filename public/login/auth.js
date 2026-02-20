@@ -24,6 +24,9 @@ function handleGoogleLogin(response) {
 
     // Handle the parsed response data
     .then(data => {
+        if (!data.token) {
+            throw new Error(data.error || "Google login failed");
+        }
 
         // Store the session token returned by the backend in localStorage
         // This token is used for authenticated requests across the app
@@ -31,30 +34,37 @@ function handleGoogleLogin(response) {
 
         // Redirect the user to the home page after successful login
         window.location.href = "/";
-    });
+    })
+    .catch(err => showMessage(err.message, true));
 }
 
-/**
- * Starts a guest user session.
- * This function requests a temporary user account from the backend.
- */
-async function startSession() {
+function showMessage(message, isError = false) {
+    const messageEl = document.getElementById("authMessage");
+    messageEl.textContent = message;
+    messageEl.classList.toggle("error", isError);
+}
 
-    // Send a request to create a new guest user session
-    const res = await fetch("/api/users/generate", {
-        method: "POST"
+async function loginWithPassword(event) {
+    event.preventDefault();
+
+    const identity = document.getElementById("loginIdentity").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identity, password })
     });
 
-    // Parse the created user object returned by the backend
-    const user = await res.json();
+    const data = await res.json();
 
-    // Store the generated session token in localStorage
-    localStorage.setItem("userToken", user.token);
+    if (!res.ok || !data.token) {
+        showMessage(data.error || "Login failed", true);
+        return;
+    }
 
-    // Redirect the user to the home page
+    localStorage.setItem("userToken", data.token);
     window.location.href = "/";
 }
 
-// Attach a click handler to the login button (if it exists)
-// The optional chaining prevents errors if the element is not present
-document.getElementById("loginBtn")?.addEventListener("click", startSession);
+document.getElementById("loginForm")?.addEventListener("submit", loginWithPassword);

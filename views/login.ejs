@@ -24,9 +24,22 @@
             })();
         </script>
 
-
         <div class="login-box">
-            <h2 class="mb-4">Welcome</h2>
+            <h2 class="mb-4">Welcome Back</h2>
+
+            <form id="loginForm" class="auth-form mb-3">
+                <h3 class="section-title">Log in</h3>
+                <input id="loginIdentity" class="form-control mb-2" type="text" placeholder="Username or Email" required>
+                <input id="loginPassword" class="form-control mb-2" type="password" placeholder="Password" required>
+                <button class="btn btn-dark w-100" type="submit">Log In</button>
+            </form>
+
+            <p class="small mb-2">Need an account?</p>
+            <a class="btn btn-outline-primary w-100 mb-3" href="/signup">Create account</a>
+
+            <div class="divider my-3">
+                <span>or</span>
+            </div>
 
             <!-- Google Sign-In Button -->
             <div id="g_id_onload"
@@ -38,12 +51,8 @@
                 data-size="large">
             </div>
 
-            <div class="divider my-3">
-                <span>or</span>
-            </div>
-
-            <!-- Guest Link -->
-            <span class="guest-link" id="guestBtn">Continue as Guest</span>
+            <span class="guest-link mt-3" id="guestBtn">Continue as Guest</span>
+            <p id="authMessage" class="auth-message"></p>
         </div>
 
         <script src="https://accounts.google.com/gsi/client" async defer></script>
