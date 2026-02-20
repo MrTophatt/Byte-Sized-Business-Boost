@@ -17,6 +17,9 @@ const Review = require("../models/Review");
 // Read required environment values once at test load time.
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 
+const oneWeekFromNow = () => new Date(Date.now() + (7 * 24 * 60 * 60 * 1000));
+const oneDayFromNow = () => new Date(Date.now() + (24 * 60 * 60 * 1000));
+
 describe("Byte-Sized Business Boost Tests", function() {
 
     // Connect to MongoDB once before running all tests in this file.
@@ -39,7 +42,9 @@ describe("Byte-Sized Business Boost Tests", function() {
         it("User schema should create a guest user", async function() {
             const guest = await User.create({
                 token: "123-234",
-                role: "guest"
+                role: "guest",
+                tokenExpiresAt: oneDayFromNow(),
+                guestExpiresAt: oneDayFromNow()
             });
 
             expect(guest.role).to.equal("guest");
@@ -156,11 +161,12 @@ describe("Byte-Sized Business Boost Tests", function() {
         // Invalid user profile IDs should resolve to a clean 404 response.
         it("User profile API should return 404 for invalid user IDs", async function() {
             const viewer = await User.create({
-                token: `viewer-token-${Date.now()}`,
+                token: `viewer-token-${Date.now()}-1234567890`,
                 role: "user",
                 googleId: `viewer-google-${Date.now()}`,
                 email: `viewer-${Date.now()}@example.com`,
-                name: "Viewer"
+                name: "Viewer",
+                tokenExpiresAt: oneWeekFromNow()
             });
 
             const res = await request(app)
@@ -205,13 +211,19 @@ describe("Byte-Sized Business Boost Tests", function() {
                 categories: ["services"]
             });
 
-            guestUser = await User.create({ token: `guest-token-${suffix}`, role: "guest" });
+            guestUser = await User.create({
+                token: `guest-token-${suffix}-1234567890`,
+                role: "guest",
+                tokenExpiresAt: oneDayFromNow(),
+                guestExpiresAt: oneDayFromNow()
+            });
             memberUser = await User.create({
-                token: `member-token-${suffix}`,
+                token: `member-token-${suffix}-1234567890`,
                 role: "user",
                 googleId: `google-${suffix}`,
                 email: `security-${suffix}@example.com`,
-                name: "Security User"
+                name: "Security User",
+                tokenExpiresAt: oneWeekFromNow()
             });
         });
 
@@ -264,6 +276,51 @@ describe("Byte-Sized Business Boost Tests", function() {
                 .send({ title: "Bad business id", body: "Will fail", rating: 5 });
 
             expect(res.status).to.equal(400);
+        });
+    });
+
+    describe("Session expiry checks", function() {
+        it("Rejects expired member sessions and clears the stored token", async function() {
+            const expiredUser = await User.create({
+                token: `expired-member-${Date.now()}-1234567890`,
+                role: "user",
+                googleId: `expired-google-${Date.now()}`,
+                email: `expired-${Date.now()}@example.com`,
+                name: "Expired Member",
+                tokenExpiresAt: new Date(Date.now() - 1000)
+            });
+
+            const res = await request(app)
+                .get("/api/users/me")
+                .set("x-user-token", expiredUser.token);
+
+            expect(res.status).to.equal(401);
+            expect(res.body.error).to.equal("Session expired");
+
+            const reloaded = await User.findById(expiredUser._id).lean();
+            expect(reloaded.token).to.equal(null);
+            expect(reloaded.tokenExpiresAt).to.equal(null);
+
+            await User.deleteOne({ _id: expiredUser._id });
+        });
+
+        it("Rejects expired guest sessions and deletes the guest account", async function() {
+            const expiredGuest = await User.create({
+                token: `expired-guest-${Date.now()}-1234567890`,
+                role: "guest",
+                tokenExpiresAt: new Date(Date.now() - 1000),
+                guestExpiresAt: new Date(Date.now() - 1000)
+            });
+
+            const res = await request(app)
+                .get("/api/users/me")
+                .set("x-user-token", expiredGuest.token);
+
+            expect(res.status).to.equal(401);
+            expect(res.body.error).to.equal("Session expired");
+
+            const reloaded = await User.findById(expiredGuest._id).lean();
+            expect(reloaded).to.equal(null);
         });
     });
 });

@@ -10,6 +10,8 @@ const User = require("../models/User");
 // Crypto module used to generate secure random session tokens
 const crypto = require("crypto");
 
+const USER_SESSION_MS = 7 * 24 * 60 * 60 * 1000;
+
 // Initialize Google OAuth client with the configured client ID
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -38,6 +40,9 @@ router.post("/google", async (req, res) => {
             return res.status(400).json({ error: "Google login failed" });
         }
 
+        const nextToken = crypto.randomUUID();
+        const nextTokenExpiry = new Date(Date.now() + USER_SESSION_MS);
+
         // Attempt to find an existing user with this Google account
         let user = await User.findOne({ googleId });
 
@@ -48,13 +53,18 @@ router.post("/google", async (req, res) => {
                 email,
                 name,
                 role: "user",
-                token: crypto.randomUUID(), // session token used for auth
-                avatarUrl: picture // persist Google profile picture
+                token: nextToken,
+                tokenExpiresAt: nextTokenExpiry,
+                avatarUrl: picture,
+                guestExpiresAt: null
             });
         } else {
             // Existing user:
             // Generate a new session token without modifying profile data
-            user.token = crypto.randomUUID();
+            user.role = "user";
+            user.token = nextToken;
+            user.tokenExpiresAt = nextTokenExpiry;
+            user.guestExpiresAt = null;
             await user.save();
         }
 

@@ -16,6 +16,15 @@ const userSchema = new mongoose.Schema({
         sparse: true
     },
 
+    /**
+     * Token expiry timestamp. Sessions become invalid after this moment.
+     */
+    tokenExpiresAt: {
+        type: Date,
+        default: null,
+        index: true
+    },
+
     // User access level
     role: {
         type: String,
@@ -28,6 +37,15 @@ const userSchema = new mongoose.Schema({
     email: String,
     name: String,
     avatarUrl: String,
+
+    /**
+     * Guests are temporary accounts. This timestamp is used by a TTL index
+     * so MongoDB automatically removes guests after their 24-hour lifetime.
+     */
+    guestExpiresAt: {
+        type: Date,
+        default: null
+    },
 
     /**
      * Businesses favourited by the user.
@@ -44,5 +62,14 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+// Only guest accounts should be automatically deleted by TTL.
+userSchema.index(
+    { guestExpiresAt: 1 },
+    {
+        expireAfterSeconds: 0,
+        partialFilterExpression: { role: "guest" }
+    }
+);
 
 module.exports = mongoose.model("User", userSchema);

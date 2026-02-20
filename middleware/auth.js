@@ -27,6 +27,27 @@ module.exports = async function (req, res, next) {
         return res.status(401).json({ error: "Invalid session" });
     }
 
+    const now = new Date();
+
+    // Session tokens must include an expiry and be still valid.
+    if (!user.tokenExpiresAt || user.tokenExpiresAt <= now) {
+        if (user.role === "guest") {
+            await User.deleteOne({ _id: user._id });
+        } else {
+            user.token = null;
+            user.tokenExpiresAt = null;
+            await user.save();
+        }
+
+        return res.status(401).json({ error: "Session expired" });
+    }
+
+    // Guard for guest account lifetime until TTL cleanup runs in MongoDB.
+    if (user.role === "guest" && user.guestExpiresAt && user.guestExpiresAt <= now) {
+        await User.deleteOne({ _id: user._id });
+        return res.status(401).json({ error: "Session expired" });
+    }
+
     // Attach the authenticated user to the request object
     // This allows downstream handlers to access req.user
     req.user = user;

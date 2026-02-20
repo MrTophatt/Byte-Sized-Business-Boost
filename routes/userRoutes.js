@@ -6,6 +6,8 @@ const auth = require("../middleware/auth");
 
 const router = express.Router();
 
+const GUEST_LIFETIME_MS = 24 * 60 * 60 * 1000;
+
 /**
  * POST /users/generate
  * Creates a guest user with a random session token.
@@ -13,8 +15,20 @@ const router = express.Router();
 router.post("/generate", async (req, res) => {
     try {
         const token = crypto.randomUUID();
-        const user = await User.create({ token, role: "guest" });
-        res.json({ token: user.token, role: user.role, _id: user._id });
+        const now = Date.now();
+        const user = await User.create({
+            token,
+            role: "guest",
+            tokenExpiresAt: new Date(now + GUEST_LIFETIME_MS),
+            guestExpiresAt: new Date(now + GUEST_LIFETIME_MS)
+        });
+
+        res.json({
+            token: user.token,
+            role: user.role,
+            _id: user._id,
+            tokenExpiresAt: user.tokenExpiresAt
+        });
     } catch (err) {
         res.status(500).json({ error: "User creation failed" });
     }
@@ -32,6 +46,7 @@ router.post("/logout", auth, async (req, res) => {
         } else {
             // Invalidate session token for registered users
             req.user.token = null;
+            req.user.tokenExpiresAt = null;
             await req.user.save();
         }
 
