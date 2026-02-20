@@ -9,10 +9,6 @@ const User = require("../models/User");
 
 // Crypto module used to generate secure random values
 const crypto = require("crypto");
-const net = require("net");
-const tls = require("tls");
-const { execFile } = require("child_process");
-const { promisify } = require("util");
 
 const USER_SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 const SIGNUP_CODE_TTL_MS = 10 * 60 * 1000;
@@ -22,8 +18,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // In-memory pending signups (sufficient for this project scope)
 const pendingSignups = new Map();
-
-const execFileAsync = promisify(execFile);
 
 function normalizeIdentity(value) {
     return typeof value === "string" ? value.trim().toLowerCase() : "";
@@ -46,175 +40,25 @@ function verifyPassword(password, storedHash) {
     return crypto.timingSafeEqual(Buffer.from(digest, "hex"), Buffer.from(candidate, "hex"));
 }
 
-function dotEscape(line) {
-    if (line.startsWith(".")) {
-        return `.${line}`;
+function gmailIsConfigured() {
+    return Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+}
+
+function getMailTransporter() {
+    const nodemailer = require("nodemailer");
+
+    if (!gmailIsConfigured()) {
+        throw new Error("Gmail is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env");
     }
 
-    return line;
-}
-
-function verifyPassword(password, storedHash) {
-    if (typeof storedHash !== "string" || !storedHash.includes(":")) {
-        return false;
-    }
-
-    const [salt, digest] = storedHash.split(":");
-    const candidate = crypto.pbkdf2Sync(password, salt, 100000, 64, "sha512").toString("hex");
-
-    return crypto.timingSafeEqual(Buffer.from(digest, "hex"), Buffer.from(candidate, "hex"));
-}
-
-function dotEscape(line) {
-    if (line.startsWith(".")) {
-        return `.${line}`;
-    }
-
-    return line;
-}
-
-function buildSmtpMessage({ from, to, subject, body }) {
-    return [
-        `From: ${from}`,
-        `To: ${to}`,
-        `Subject: ${subject}`,
-        "MIME-Version: 1.0",
-        "Content-Type: text/plain; charset=UTF-8",
-        "",
-        body
-    ].join("\r\n");
-}
-
-function readSmtpResponse(socket, timeoutMs) {
-    return new Promise((resolve, reject) => {
-        let buffer = "";
-        let timer;
-
-        const cleanup = () => {
-            socket.off("data", onData);
-            socket.off("error", onError);
-            clearTimeout(timer);
-        };
-
-        const onError = err => {
-            cleanup();
-            reject(err);
-        };
-
-        const onData = chunk => {
-            buffer += chunk.toString("utf8");
-            const lines = buffer.split("\r\n").filter(Boolean);
-
-            if (!lines.length) {
-                return;
-            }
-
-            const lastLine = lines[lines.length - 1];
-
-            if (/^\d{3} /.test(lastLine)) {
-                cleanup();
-                resolve(lastLine);
-            }
-        };
-
-        timer = setTimeout(() => {
-            cleanup();
-            reject(new Error("SMTP response timeout"));
-        }, timeoutMs);
-
-        socket.on("data", onData);
-        socket.on("error", onError);
+    return nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD
+        },
+        connectionTimeout: Number(process.env.SMTP_TIMEOUT_MS || 10000)
     });
-}
-
-async function smtpCommand(socket, command, expectedCodes, timeoutMs) {
-    if (command) {
-        socket.write(`${command}\r\n`);
-    }
-
-    const response = await readSmtpResponse(socket, timeoutMs);
-    const code = Number(response.slice(0, 3));
-
-    if (!expectedCodes.includes(code)) {
-        throw new Error(`SMTP command failed (${code}): ${response}`);
-    }
-
-    return response;
-}
-
-async function sendViaSmtp({ host, port, secure, user, pass, from, to, subject, body, timeoutMs }) {
-    const socket = secure
-        ? tls.connect({
-            host,
-            port,
-            servername: host
-        })
-        : net.createConnection({ host, port });
-
-    await new Promise((resolve, reject) => {
-        const onError = err => {
-            socket.off("connect", onConnect);
-            reject(err);
-        };
-
-        const onConnect = () => {
-            socket.off("error", onError);
-            resolve();
-        };
-
-        socket.once("error", onError);
-        socket.once("connect", onConnect);
-        socket.setTimeout(timeoutMs, () => {
-            socket.destroy(new Error("SMTP connection timeout"));
-        });
-    });
-
-    try {
-        await smtpCommand(socket, null, [220], timeoutMs);
-        await smtpCommand(socket, `EHLO ${host}`, [250], timeoutMs);
-
-        if (user && pass) {
-            await smtpCommand(socket, "AUTH LOGIN", [334], timeoutMs);
-            await smtpCommand(socket, Buffer.from(user, "utf8").toString("base64"), [334], timeoutMs);
-            await smtpCommand(socket, Buffer.from(pass, "utf8").toString("base64"), [235], timeoutMs);
-        }
-
-        await smtpCommand(socket, `MAIL FROM:<${from}>`, [250], timeoutMs);
-        await smtpCommand(socket, `RCPT TO:<${to}>`, [250, 251], timeoutMs);
-        await smtpCommand(socket, "DATA", [354], timeoutMs);
-
-        const dataLines = buildSmtpMessage({ from, to, subject, body })
-            .split("\r\n")
-            .map(dotEscape)
-            .join("\r\n");
-
-        socket.write(`${dataLines}\r\n.\r\n`);
-        await smtpCommand(socket, null, [250], timeoutMs);
-        await smtpCommand(socket, "QUIT", [221], timeoutMs);
-    } finally {
-        socket.end();
-    }
-}
-
-async function sendViaSendmail({ from, to, subject, body }) {
-    const message = [
-        `From: ${from}`,
-        `To: ${to}`,
-        `Subject: ${subject}`,
-        "Content-Type: text/plain; charset=UTF-8",
-        "",
-        body
-    ].join("\n");
-
-    await execFileAsync("/usr/sbin/sendmail", ["-t", "-i"], { input: message });
-}
-
-function parseBooleanEnv(value) {
-    return typeof value === "string" && ["1", "true", "yes", "on"].includes(value.toLowerCase());
-}
-
-function smtpIsConfigured() {
-    return Boolean(process.env.SMTP_HOST);
 }
 
 async function sendVerificationEmail(email, code) {
@@ -222,48 +66,22 @@ async function sendVerificationEmail(email, code) {
         return;
     }
 
-    const from = process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@bytesized.local";
+    const from = process.env.GMAIL_FROM || process.env.GMAIL_USER;
     const subject = "Your Byte-Sized Business Boost verification code";
     const body = `Your verification code is ${code}. It expires in 10 minutes.`;
 
-    const smtpConfig = {
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT || 587),
-        secure: parseBooleanEnv(process.env.SMTP_SECURE),
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-        timeoutMs: Number(process.env.SMTP_TIMEOUT_MS || 10000)
-    };
-
-    const errors = [];
-
-    if (smtpIsConfigured()) {
-        try {
-            await sendViaSmtp({
-                ...smtpConfig,
-                from,
-                to: email,
-                subject,
-                body
-            });
-            return;
-        } catch (err) {
-            errors.push(`SMTP failed: ${err.message}`);
-        }
-    }
-
     try {
-        await sendViaSendmail({ from, to: email, subject, body });
+        const transporter = getMailTransporter();
+        await transporter.sendMail({
+            from,
+            to: email,
+            subject,
+            text: body
+        });
         return;
     } catch (err) {
-        if (err && err.code === "ENOENT") {
-            errors.push("Sendmail not found at /usr/sbin/sendmail");
-        } else {
-            errors.push(`Sendmail failed: ${err.message}`);
-        }
+        throw new Error(`Email delivery failed: ${err.message}`);
     }
-
-    throw new Error(`Email delivery failed. ${errors.join("; ")}`);
 }
 
 /**
@@ -308,7 +126,7 @@ router.post("/signup/start", async (req, res) => {
 
         return res.json({
             message: "Verification code sent to your email",
-            // Exposed only for local/dev convenience because this project has no SMTP integration yet.
+            // Exposed only for local/dev convenience; hidden outside test runs.
             devVerificationCode: process.env.NODE_ENV === "test" ? verificationCode : undefined
         });
     } catch (err) {
