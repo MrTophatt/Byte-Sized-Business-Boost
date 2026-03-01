@@ -260,7 +260,7 @@ router.post("/google", async (req, res) => {
 
         // Extract user information from the verified token
         const payload = ticket.getPayload();
-        const { sub: googleId, email, name } = payload;
+        const { sub: googleId, email, name, picture } = payload;
 
         if (!googleId || !email) {
             return res.status(400).json({ error: "Google login failed" });
@@ -284,7 +284,7 @@ router.post("/google", async (req, res) => {
                 email: normalizedEmail,
                 name,
                 role: "user",
-                avatarUrl: null,
+                avatarUrl: picture,
                 token: nextToken,
                 tokenExpiresAt: nextTokenExpiry,
                 guestExpiresAt: null
@@ -295,7 +295,7 @@ router.post("/google", async (req, res) => {
             user.googleId = user.googleId || googleId;
             user.email = user.email || normalizedEmail;
             user.name = user.name || name;
-            user.avatarUrl = null;
+            user.avatarUrl = picture
             user.token = nextToken;
             user.tokenExpiresAt = nextTokenExpiry;
             user.guestExpiresAt = null;
